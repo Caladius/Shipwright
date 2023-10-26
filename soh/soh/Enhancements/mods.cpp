@@ -860,6 +860,7 @@ typedef enum {
     ADD_KILL_TRAP,
     ADD_TELEPORT_TRAP,
     ADD_REDEAD_TRAP,
+    ADD_MIRROR_TRAP,
     ADD_TRAP_MAX
 } AltTrapType;
 
@@ -874,7 +875,8 @@ const char* altTrapTypeCvars[] = {
     "gAddTraps.Ammo",
     "gAddTraps.Kill",
     "gAddTraps.Tele",
-    "gAddTraps.Redead"
+    "gAddTraps.Redead",
+    "gAddTraps.Mirror"
 };
 
 std::vector<AltTrapType> getEnabledAddTraps () {
@@ -892,7 +894,8 @@ std::vector<AltTrapType> getEnabledAddTraps () {
 
 void RegisterAltTrapTypes() {
     static AltTrapType roll = ADD_TRAP_MAX;
-    static int statusTimer = -1;
+    static int speedTimer = -1;
+    static int mirrorTimer = -1;
     static int eventTimer = -1;
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemReceive>([](GetItemEntry itemEntry) {
@@ -917,7 +920,7 @@ void RegisterAltTrapTypes() {
             case ADD_SPEED_TRAP:
                 Audio_PlaySoundGeneral(NA_SE_VO_KZ_MOVE, &D_801333D4, 4, &D_801333E0, &D_801333E0, &D_801333E8);
                 GameInteractor::State::RunSpeedModifier = -2;
-                statusTimer = 200;
+                speedTimer = 200;
                 Overlay_DisplayText(10, "Speed Decreased!");
                 break;
             case ADD_BOMB_TRAP:
@@ -940,12 +943,22 @@ void RegisterAltTrapTypes() {
             case ADD_REDEAD_TRAP:
                 Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_RD, player->actor.world.pos.x,
                             player->actor.world.pos.y, player->actor.world.pos.z, 0, 0, 0, 22, true);
+                break;
+            case ADD_MIRROR_TRAP:
+                mirrorTimer = 600;
+                CVarSetInteger("gMirroredWorldMode", 1);
+                UpdateMirrorModeState(gPlayState->sceneNum);
+                break;
         }
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
         Player* player = GET_PLAYER(gPlayState);
-        if (statusTimer == 0) {
+        if (speedTimer == 0) {
             GameInteractor::State::RunSpeedModifier = 0;
+        }
+        if (mirrorTimer == 0) {
+            CVarSetInteger("gMirroredWorldMode", 0);
+            UpdateMirrorModeState(gPlayState->sceneNum);
         }
         if (eventTimer == 0) {
             switch (roll) {
@@ -997,8 +1010,9 @@ void RegisterAltTrapTypes() {
                     break;
             }
         }
-        statusTimer--;
+        speedTimer--;
         eventTimer--;
+        mirrorTimer--;
     });
 }
 

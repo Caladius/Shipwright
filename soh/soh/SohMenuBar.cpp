@@ -1163,6 +1163,7 @@ void DrawEnhancementsMenu() {
                     ImGui::Text("Nightmare Traps:");
                     UIWidgets::Spacer(0);
                     UIWidgets::PaddedEnhancementCheckbox("Redead Traps", "gAddTraps.Redead", true, false);
+                    UIWidgets::PaddedEnhancementCheckbox("Mirror Traps", "gAddTraps.Mirror", true, false);
 
                     ImGui::EndMenu();
                 }
