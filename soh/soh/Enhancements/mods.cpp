@@ -859,6 +859,7 @@ typedef enum {
     ADD_AMMO_TRAP,
     ADD_KILL_TRAP,
     ADD_TELEPORT_TRAP,
+    ADD_REDEAD_TRAP,
     ADD_TRAP_MAX
 } AltTrapType;
 
@@ -872,7 +873,8 @@ const char* altTrapTypeCvars[] = {
     "gAddTraps.Void",
     "gAddTraps.Ammo",
     "gAddTraps.Kill",
-    "gAddTraps.Tele"
+    "gAddTraps.Tele",
+    "gAddTraps.Redead"
 };
 
 std::vector<AltTrapType> getEnabledAddTraps () {
@@ -897,6 +899,7 @@ void RegisterAltTrapTypes() {
         if (!CVarGetInteger("gAddTraps.enabled", 0) || itemEntry.modIndex != MOD_RANDOMIZER || itemEntry.getItemId != RG_ICE_TRAP) {
             return;
         }
+        Player* player = GET_PLAYER(gPlayState);
         roll = RandomElement(getEnabledAddTraps());
         switch (roll) {
             case ADD_ICE_TRAP:
@@ -934,6 +937,9 @@ void RegisterAltTrapTypes() {
             case ADD_TELEPORT_TRAP:
                 eventTimer = 3;
                 break;
+            case ADD_REDEAD_TRAP:
+                Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_RD, player->actor.world.pos.x,
+                            player->actor.world.pos.y, player->actor.world.pos.z, 0, 0, 0, 22, true);
         }
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {

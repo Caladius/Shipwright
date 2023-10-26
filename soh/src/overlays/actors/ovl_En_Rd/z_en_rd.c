@@ -167,6 +167,10 @@ void EnRd_Init(Actor* thisx, PlayState* play) {
     if (thisx->params == 3) {
         thisx->flags |= ACTOR_FLAG_LENS;
     }
+
+    if (thisx->params == 22) {
+        func_80AE3260(this, play);
+    }
 }
 
 void EnRd_Destroy(Actor* thisx, PlayState* play) {
