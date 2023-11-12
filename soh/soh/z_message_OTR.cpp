@@ -154,4 +154,7 @@ extern "C" void OTRMessage_Init()
         CustomMessage("You look bored. Wanna go out for a&walk?\x1B&%gYes&No%w",
                       "Du siehst gelangweilt aus.&Willst du einen Spaziergang machen?\x1B&%gJa&Nein%w",
                       "Tu as l'air de t'ennuyer. Tu veux&aller faire un tour?\x1B&%gOui&Non%w"));
+    CustomMessageManager::Instance->CreateMessage(
+        customMessageTableID, TEXT_BLAST_MASK,
+        CustomMessage("Have you tried pressing B?", "Have you tried pressing B?", "Have you tried pressing B?"));
 }
