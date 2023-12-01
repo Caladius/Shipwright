@@ -1,6 +1,7 @@
 #include "z_en_du.h"
 #include "objects/object_du/object_du.h"
 #include "scenes/overworld/spot18/spot18_scene.h"
+#include "soh_assets.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_NO_FREEZE_OCARINA)
 
@@ -94,6 +95,26 @@ static AnimationInfo sAnimationInfo[] = {
     { &gDaruniaDancingLoop4Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
     { &gDaruniaDancingEndAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, -6.0f },
 };
+
+// #region SOH [Enhancement] Only animations too fast need to be slowed down, otherwise not touched
+static AnimationInfo sAnimationInfoFix[] = {
+    { NULL },
+    { NULL },
+    { NULL },
+    { NULL },
+    { NULL },
+    { NULL },
+    { NULL },
+    { &gDaruniaDancingLoop1Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, -10.0f }, //
+    { &gDaruniaDancingLoop1Anim, 0.77f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // hop
+    { &gDaruniaDancingLoop2Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // from hop to spin
+    { &gDaruniaDancingLoop3Anim, 0.77f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // spin
+    { NULL },
+    { NULL },
+    { &gDaruniaDancingLoop4Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // from spin to hop
+    { NULL },
+};
+// #endregion
 
 void EnDu_SetupAction(EnDu* this, EnDuActionFunc actionFunc) {
     this->actionFunc = actionFunc;
@@ -255,7 +276,13 @@ void func_809FE040(EnDu* this) {
         if (this->unk_1E6 >= 8) {
             this->unk_1E6 = 0;
         }
-        Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, animationIndices[this->unk_1E6]);
+        // #region SOH[Enhancement]
+        if (CVarGetInteger("gEnhancements.FixDaruniaDanceSpeed", 1)) {
+            Animation_ChangeByInfo(&this->skelAnime, sAnimationInfoFix, animationIndices[this->unk_1E6]);
+        // #endregion
+        } else {
+            Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, animationIndices[this->unk_1E6]);
+        }
     }
 }
 
@@ -271,7 +298,13 @@ void func_809FE104(EnDu* this) {
         if (Animation_OnFrame(&this->skelAnime, this->skelAnime.endFrame)) {
             this->unk_1E6++;
             if (this->unk_1E6 < 4) {
-                Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, animationIndices[this->unk_1E6]);
+                // #region SOH[Enhancement]
+                if (CVarGetInteger("gEnhancements.FixDaruniaDanceSpeed", 1) && this->unk_1E6 <= 1) {
+                    Animation_ChangeByInfo(&this->skelAnime, sAnimationInfoFix, animationIndices[this->unk_1E6]);
+                // #endregion
+                } else {
+                    Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, animationIndices[this->unk_1E6]);
+                }
             }
         }
     }
@@ -465,7 +498,13 @@ void func_809FE890(EnDu* this, PlayState* play) {
             }
             if (csAction->action == 7 || csAction->action == 8) {
                 this->unk_1E6 = 0;
-                Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ENDU_ANIM_7);
+                // #region SOH[Enhancement]
+                if (CVarGetInteger("gEnhancements.FixDaruniaDanceSpeed", 1)) {
+                    Animation_ChangeByInfo(&this->skelAnime, sAnimationInfoFix, ENDU_ANIM_7);
+                // #endregion
+                } else {
+                    Animation_ChangeByInfo(&this->skelAnime, sAnimationInfo, ENDU_ANIM_7);
+                }
             }
             this->unk_1EA = csAction->action;
             if (this->unk_1EA == 7) {
@@ -623,6 +662,20 @@ void EnDu_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, 
 
     if (limbIndex == 16) {
         Matrix_MultVec3f(&D_809FF40C, &this->actor.focus.pos);
+    }
+
+    if (CVarGetInteger("gLetItSnow", 0)) {
+        if (limbIndex == 17) {
+            OPEN_DISPS(play->state.gfxCtx);
+            Matrix_Push();
+            Matrix_RotateZYX(13062, -1329, -15499, MTXMODE_APPLY);
+            Matrix_Translate(945.946f, -297.297f, 608.108f, MTXMODE_APPLY);
+            Matrix_Scale(1.217f, 1.217f, 1.217f, MTXMODE_APPLY);
+            gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPDisplayList(POLY_OPA_DISP++, gSantaHatGenericDL);
+            Matrix_Pop();
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
     }
 }
 

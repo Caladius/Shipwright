@@ -60,6 +60,7 @@ const std::string Randomizer::hintMessageTableID = "RandomizerHints";
 const std::string Randomizer::merchantMessageTableID = "RandomizerMerchants";
 const std::string Randomizer::rupeeMessageTableID = "RandomizerRupees";
 const std::string Randomizer::triforcePieceMessageTableID = "RandomizerTriforcePiece";
+const std::string Randomizer::christmasTreeMessageTableID = "RandomizerChristmasTree";
 const std::string Randomizer::NaviRandoMessageTableID = "RandomizerNavi";
 const std::string Randomizer::IceTrapRandoMessageTableID = "RandomizerIceTrap";
 const std::string Randomizer::randoMiscHintsTableID = "RandomizerMiscHints";
@@ -360,37 +361,35 @@ std::unordered_map<std::string, RandomizerSettingKey> SpoilerfileSettingNameToEn
     { "Shuffle Dungeon Quest:Ganon's Castle", RSK_MQ_GANONS_CASTLE },
 };
 
-std::string sanitize(std::string stringValue) {
-    // Add backslashes.
-    for (auto i = stringValue.begin();;) {
-        auto const pos = std::find_if(i, stringValue.end(), [](char const c) { return '\\' == c || '\'' == c || '"' == c; });
-        if (pos == stringValue.end()) {
-            break;
-        }
-        i = std::next(stringValue.insert(pos, '\\'), 2);
-    }
-
-    // Removes others.
-    stringValue.erase(std::remove_if(stringValue.begin(), stringValue.end(), [](char const c) {
-        return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c; }), stringValue.end());
-
-    return stringValue;
-}
-
 #pragma optimize("", off)
 #pragma GCC push_options
 #pragma GCC optimize ("O0")
 bool Randomizer::SpoilerFileExists(const char* spoilerFileName) {
-    if (strcmp(spoilerFileName, "") != 0) {
-        std::ifstream spoilerFileStream(sanitize(spoilerFileName));
-        if (!spoilerFileStream) {
-            return false;
-        } else {
+    try {
+        if (strcmp(spoilerFileName, "") != 0) {
+            std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
+            if (!spoilerFileStream) {
+                return false;
+            }
+
+            json spoilerFileJson;
+            spoilerFileStream >> spoilerFileJson;
+
+            if (!spoilerFileJson.contains("version") || !spoilerFileJson.contains("finalSeed")) {
+                return false;
+            }
+
             return true;
         }
-    }
 
-    return false;
+        return false;
+    } catch (std::exception& e) {
+        SPDLOG_ERROR("Error checking if spoiler file exists: {}", e.what());
+        return false;
+    } catch (...) {
+        SPDLOG_ERROR("Error checking if spoiler file exists");
+        return false;
+    }
 }
 #pragma GCC pop_options
 #pragma optimize("", on)
@@ -659,7 +658,7 @@ void Randomizer::LoadMasterQuestDungeons(const char* spoilerFileName) {
 }
 
 void Randomizer::ParseRandomizerSettingsFile(const char* spoilerFileName) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream)
         return;
 
@@ -1293,7 +1292,7 @@ std::string FormatJsonHintText(std::string jsonHint) {
 }
 
 void Randomizer::ParseHintLocationsFile(const char* spoilerFileName) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream)
         return;
 
@@ -1394,7 +1393,7 @@ void Randomizer::ParseHintLocationsFile(const char* spoilerFileName) {
 }
 
 void Randomizer::ParseRequiredTrialsFile(const char* spoilerFileName) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream) {
         return;
     }
@@ -1415,7 +1414,7 @@ void Randomizer::ParseRequiredTrialsFile(const char* spoilerFileName) {
 }
 
 void Randomizer::ParseMasterQuestDungeonsFile(const char* spoilerFileName) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream) {
         return;
     }
@@ -1495,7 +1494,7 @@ int16_t Randomizer::GetVanillaMerchantPrice(RandomizerCheck check) {
 }
 
 void Randomizer::ParseItemLocationsFile(const char* spoilerFileName, bool silent) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream)
         return;
 
@@ -1558,7 +1557,7 @@ void Randomizer::ParseItemLocationsFile(const char* spoilerFileName, bool silent
 }
 
 void Randomizer::ParseEntranceDataFile(const char* spoilerFileName, bool silent) {
-    std::ifstream spoilerFileStream(sanitize(spoilerFileName));
+    std::ifstream spoilerFileStream(SohUtils::Sanitize(spoilerFileName));
     if (!spoilerFileStream) {
         return;
     }
@@ -2547,6 +2546,7 @@ std::map<RandomizerCheck, RandomizerInf> rcToRandomizerInf = {
     { RC_LH_CHILD_FISHING,                                            RAND_INF_CHILD_FISHING },
     { RC_LH_ADULT_FISHING,                                            RAND_INF_ADULT_FISHING },
     { RC_MARKET_10_BIG_POES,                                          RAND_INF_10_BIG_POES },
+    { RC_KAK_100_GOLD_SKULLTULA_REWARD,                               RAND_INF_KAK_100_GOLD_SKULLTULA_REWARD },
 };
 
 RandomizerCheckObject Randomizer::GetCheckObjectFromActor(s16 actorId, s16 sceneNum, s32 actorParams = 0x00) {
@@ -3143,7 +3143,9 @@ void RandomizerSettingsWindow::DrawElement() {
         UIWidgets::DisableComponent(ImGui::GetStyle().Alpha * 0.5f);
     }
 
+    ImGui::BeginDisabled(CVarGetInteger("gDisableChangingSettings", 0));
     DrawPresetSelector(PRESET_TYPE_RANDOMIZER);
+    ImGui::EndDisabled();
 
     UIWidgets::Spacer(0);
     UIWidgets::EnhancementCheckbox("Manual seed entry", "gRandoManualSeedEntry", false, "");
@@ -3166,19 +3168,25 @@ void RandomizerSettingsWindow::DrawElement() {
     }
 
     UIWidgets::Spacer(0);
+    ImGui::BeginDisabled(CVarGetInteger("gRandomizerDontGenerateSpoiler", 0) && gSaveContext.gameMode != GAMEMODE_FILE_SELECT);
     if (ImGui::Button("Generate Randomizer")) {
         GenerateRandomizer(CVarGetInteger("gRandoManualSeedEntry", 0) ? seedString : "");
     }
+    ImGui::EndDisabled();
 
     UIWidgets::Spacer(0);
-    std::string spoilerfilepath = CVarGetString("gSpoilerLog", "");
-    ImGui::Text("Spoiler File: %s", spoilerfilepath.c_str());
+    if (!CVarGetInteger("gRandomizerDontGenerateSpoiler", 0)) {
+        std::string spoilerfilepath = CVarGetString("gSpoilerLog", "");
+        ImGui::Text("Spoiler File: %s", spoilerfilepath.c_str());
+    }
 
     // RANDOTODO settings presets
     // std::string presetfilepath = CVarGetString("gLoadedPreset", "");
     // ImGui::Text("Settings File: %s", presetfilepath.c_str());
 
     UIWidgets::PaddedSeparator();
+
+    ImGui::BeginDisabled(CVarGetInteger("gDisableChangingSettings", 0));
 
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     static ImVec2 cellPadding(8.0f, 8.0f);
@@ -3542,21 +3550,20 @@ void RandomizerSettingsWindow::DrawElement() {
                 }
 
                 // Triforce Hunt
-                UIWidgets::EnhancementCheckbox("Triforce Hunt", "gRandomizeTriforceHunt");
+                UIWidgets::EnhancementCheckbox("Christmas Ornaments Hunt", "gRandomizeTriforceHunt");
                 UIWidgets::InsertHelpHoverText(
-                    "Pieces of the Triforce of Courage have been scattered across the world. Find them all to finish the game!\n\n"
-                    "When the required amount of pieces have been found, the game is saved and Ganon's Boss key is given "
-                    "to you when you load back into the game if you desire to beat Ganon afterwards.\n\n"
-                    "Keep in mind Ganon might not be logically beatable when \"All Locations Reachable\" is turned off."
+                    "The Christmas ornnaments went missing from the tree in Kakariko Village! Find them back and restore the Christmas "
+                    "magic. The tree will get more and more decorated as you find more of the ornaments. Interact with the completed tree "
+                    "to finish the game! Your game will be saved and Ganon's Boss key will be granted once you load back into the save."
                 );
 
                 if (CVarGetInteger("gRandomizeTriforceHunt", 0)) {
                     // Triforce Hunt (total pieces)
                     UIWidgets::Spacer(0);
                     int totalPieces = CVarGetInteger("gRandomizeTriforceHuntTotalPieces", 30);
-                    ImGui::Text("Triforce Pieces in the world: %d", totalPieces);
+                    ImGui::Text("Ornaments in the world: %d", totalPieces);
                     UIWidgets::InsertHelpHoverText(
-                        "The amount of Triforce pieces that will be placed in the world. "
+                        "The amount of Christmas ornaments that will be placed in the world. "
                         "Keep in mind seed generation can fail if more pieces are placed than there are junk items in the item pool."
                     );
                     ImGui::SameLine();
@@ -3564,9 +3571,9 @@ void RandomizerSettingsWindow::DrawElement() {
 
                     // Triforce Hunt (required pieces)
                     int requiredPieces = CVarGetInteger("gRandomizeTriforceHuntRequiredPieces", 20);
-                    ImGui::Text("Triforce Pieces to win: %d", requiredPieces);
+                    ImGui::Text("Ornaments to win: %d", requiredPieces);
                     UIWidgets::InsertHelpHoverText(
-                        "The amount of Triforce pieces required to win the game."
+                        "The amount of Christmas ornaments required to win the game."
                     );
                     ImGui::SameLine();
                     UIWidgets::EnhancementSliderInt("", "##TriforceHuntRequiredPieces", "gRandomizeTriforceHuntRequiredPieces", 1, totalPieces, "", 20);
@@ -5224,6 +5231,8 @@ void RandomizerSettingsWindow::DrawElement() {
 
         ImGui::EndTabBar();
     }
+
+    ImGui::EndDisabled();
     
     if (disableEditingRandoSettings) {
         UIWidgets::ReEnableComponent("");
@@ -5515,27 +5524,27 @@ CustomMessage Randomizer::GetRupeeMessage(u16 rupeeTextId) {
 void CreateTriforcePieceMessages() {
     CustomMessage TriforcePieceMessages[NUM_TRIFORCE_PIECE_MESSAGES] = {
 
-        { "You found a %yTriforce Piece%w!&%g{{current}}%w down, %c{{remaining}}%w to go. It's a start!",
+        { "You found a %yChristmas Ornament%w!&%g{{current}}%w down, %c{{remaining}}%w to go. It's a start!",
           "Ein %yTriforce-Splitter%w! Du hast&%g{{current}}%w von %c{{required}}%w gefunden. Es ist ein&Anfang!",
           "Vous trouvez un %yFragment de la&Triforce%w! Vous en avez %g{{current}}%w, il en&reste %c{{remaining}}%w à trouver. C'est un début!" },
 
-        { "You found a %yTriforce Piece%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Progress!",
+        { "You found a %yChristmas Ornament%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Progress!",
           "Ein %yTriforce-Splitter%w! Du hast&%g{{current}}%w von %c{{required}}%w gefunden. Es geht voran!",
           "Vous trouvez un %yFragment de la&Triforce%w! Vous en avez %g{{current}}%w, il en&reste %c{{remaining}}%w à trouver. Ça avance!" },
 
-        { "You found a %yTriforce Piece%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Over half-way&there!",
+        { "You found a %yChristmas Ornament%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Over half-way&there!",
           "Ein %yTriforce-Splitter%w! Du hast&schon %g{{current}}%w von %c{{required}}%w gefunden. Schon&über die Hälfte!",
           "Vous trouvez un %yFragment de la&Triforce%w! Vous en avez %g{{current}}%w, il en&reste %c{{remaining}}%w à trouver. Il en reste un&peu moins que la moitié!" },
 
-        { "You found a %yTriforce Piece%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Almost done!",
+        { "You found a %yChristmas Ornament%w!&%g{{current}}%w down, %c{{remaining}}%w to go. Almost done!",
           "Ein %yTriforce-Splitter%w! Du hast&schon %g{{current}}%w von %c{{required}}%w gefunden. Fast&geschafft!",
           "Vous trouvez un %yFragment de la&Triforce%w! Vous en avez %g{{current}}%w, il en&reste %c{{remaining}}%w à trouver. C'est presque&terminé!" },
 
-        { "You completed the %yTriforce of&Courage%w! %gGG%w!",
+        { "You found all of the %yChristmas&Ornaments%w! Visit the %gChristmas&tree%w in Kakariko Village!",
           "Das %yTriforce des Mutes%w! Du hast&alle Splitter gefunden. %gGut gemacht%w!",
           "Vous avez complété la %yTriforce&du Courage%w! %gFélicitations%w!" },
 
-        { "You found a spare %yTriforce Piece%w!&You only needed %c{{required}}%w, but you have %g{{current}}%w!",
+        { "You found a spare %yChristmas Ornament%w!&You only needed %c{{required}}%w, but you have %g{{current}}%w!",
           "Ein übriger %yTriforce-Splitter%w! Du&hast nun %g{{current}}%w von %c{{required}}%w nötigen gefunden.",
           "Vous avez trouvé un %yFragment de&Triforce%w en plus! Vous n'aviez besoin&que de %c{{required}}%w, mais vous en avez %g{{current}}%w en&tout!" },
     };
@@ -5548,9 +5557,9 @@ void CreateTriforcePieceMessages() {
 
 CustomMessage Randomizer::GetTriforcePieceMessage() {
     // Item is only given after the textbox, so reflect that inside the textbox.
-    uint16_t current = gSaveContext.triforcePiecesCollected + 1;
-    uint16_t required = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED);
-    uint16_t remaining = required - current;
+    uint8_t current = gSaveContext.triforcePiecesCollected + 1;
+    uint8_t required = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED);
+    uint8_t remaining = required - current;
     float percentageCollected = (float)current / (float)required;
     uint8_t messageIndex;
 
@@ -5573,6 +5582,39 @@ CustomMessage Randomizer::GetTriforcePieceMessage() {
     messageEntry.Replace("{{current}}", std::to_string(current), std::to_string(current), std::to_string(current));
     messageEntry.Replace("{{remaining}}", std::to_string(remaining), std::to_string(remaining), std::to_string(remaining));
     messageEntry.Replace("{{required}}", std::to_string(required), std::to_string(required), std::to_string(required));
+    return messageEntry;
+}
+void CreateChristmasTreeMessages() {
+    CustomMessage ChristmasTreeMessages[2] = {
+
+        { "The %yChristmas tree%w seems to be&missing some of %gits magic%w... Find all&ornaments to save %rChristmas%w!",
+          "The %yChristmas tree%w seems to be&missing some of %gits magic%w... Find all&ornaments to save %rChristmas%w!",
+          "The %yChristmas tree%w seems to be&missing some of %gits magic%w... Find all&ornaments to save %rChristmas%w!" },
+
+        { "The tree's magic has been fully&restored. %gMerry %rChristmas%w!",
+          "The tree's magic has been fully&restored. %gMerry %rChristmas%w!",
+          "The tree's magic has been fully&restored. %gMerry %rChristmas%w!" }
+    };
+    CustomMessageManager* customMessageManager = CustomMessageManager::Instance;
+    customMessageManager->AddCustomMessageTable(Randomizer::christmasTreeMessageTableID);
+    for (unsigned int i = 0; i <= 1; i++) {
+        customMessageManager->CreateMessage(Randomizer::christmasTreeMessageTableID, i, ChristmasTreeMessages[i]);
+    }
+}
+
+CustomMessage Randomizer::GetChristmasTreeMessage() {
+    // Item is only given after the textbox, so reflect that inside the textbox.
+    uint8_t current = gSaveContext.triforcePiecesCollected;
+    uint8_t required = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED);
+    uint8_t messageIndex;
+
+    if (current < required) {
+        messageIndex = 0;
+    } else {
+        messageIndex = 1;
+    }
+
+    CustomMessage messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::christmasTreeMessageTableID, messageIndex);
     return messageEntry;
 }
 
@@ -6108,6 +6150,7 @@ void Randomizer::CreateCustomMessages() {
     CreateGetItemMessages(&getItemMessages);
     CreateRupeeMessages();
     CreateTriforcePieceMessages();
+    CreateChristmasTreeMessages();
     CreateNaviRandoMessages();
     CreateIceTrapRandoMessages();
     CreateFireTempleGoronMessages();

@@ -32,11 +32,10 @@ extern "C" {
 #include "functions.h"
 extern SaveContext gSaveContext;
 extern PlayState* gPlayState;
+extern "C" s16 gEnSnowballId;
 extern void Overlay_DisplayText(float duration, const char* text);
 uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum);
 }
-bool performDelayedSave = false;
-bool performSave = false;
 
 // TODO: When there's more uses of something like this, create a new GI::RawAction?
 void ReloadSceneTogglingLinkAge() {
@@ -49,6 +48,7 @@ void ReloadSceneTogglingLinkAge() {
 
 void RegisterInfiniteMoney() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) return;
         if (CVarGetInteger("gInfiniteMoney", 0) != 0) {
             if (gSaveContext.rupees < CUR_CAPACITY(UPG_WALLET)) {
                 gSaveContext.rupees = CUR_CAPACITY(UPG_WALLET);
@@ -59,6 +59,7 @@ void RegisterInfiniteMoney() {
 
 void RegisterInfiniteHealth() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) return;
         if (CVarGetInteger("gInfiniteHealth", 0) != 0) {
             if (gSaveContext.health < gSaveContext.healthCapacity) {
                 gSaveContext.health = gSaveContext.healthCapacity;
@@ -69,6 +70,7 @@ void RegisterInfiniteHealth() {
 
 void RegisterInfiniteAmmo() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) return;
         if (CVarGetInteger("gInfiniteAmmo", 0) != 0) {
             // Deku Sticks
             if (AMMO(ITEM_STICK) < CUR_CAPACITY(UPG_STICKS)) {
@@ -105,6 +107,7 @@ void RegisterInfiniteAmmo() {
 
 void RegisterInfiniteMagic() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) return;
         if (CVarGetInteger("gInfiniteMagic", 0) != 0) {
             if (gSaveContext.isMagicAcquired && gSaveContext.magic != (gSaveContext.isDoubleMagicAcquired + 1) * 0x30) {
                 gSaveContext.magic = (gSaveContext.isDoubleMagicAcquired + 1) * 0x30;
@@ -115,6 +118,7 @@ void RegisterInfiniteMagic() {
 
 void RegisterInfiniteNayrusLove() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) return;
         if (CVarGetInteger("gInfiniteNayru", 0) != 0) {
             gSaveContext.nayrusLoveTimer = 0x44B;
         }
@@ -123,7 +127,7 @@ void RegisterInfiniteNayrusLove() {
 
 void RegisterMoonJumpOnL() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
-        if (!gPlayState) return;
+        if (!GameInteractor::IsSaveLoaded()) return;
         
         if (CVarGetInteger("gMoonJumpOnL", 0) != 0) {
             Player* player = GET_PLAYER(gPlayState);
@@ -138,7 +142,7 @@ void RegisterMoonJumpOnL() {
 
 void RegisterInfiniteISG() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
-        if (!gPlayState) return;
+        if (!GameInteractor::IsSaveLoaded()) return;
 
         if (CVarGetInteger("gEzISG", 0) != 0) {
             Player* player = GET_PLAYER(gPlayState);
@@ -150,7 +154,7 @@ void RegisterInfiniteISG() {
 //Permanent quick put away (QPA) glitched damage value
 void RegisterEzQPA() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
-        if (!gPlayState) return;
+        if (!GameInteractor::IsSaveLoaded()) return;
 
         if (CVarGetInteger("gEzQPA", 0) != 0) {
             Player* player = GET_PLAYER(gPlayState);
@@ -162,7 +166,7 @@ void RegisterEzQPA() {
 
 void RegisterUnrestrictedItems() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
-        if (!gPlayState) return;
+        if (!GameInteractor::IsSaveLoaded()) return;
 
         if (CVarGetInteger("gNoRestrictItems", 0) != 0) {
             u8 sunsBackup = gPlayState->interfaceCtx.restrictions.sunsSong;
@@ -190,13 +194,15 @@ void RegisterFreezeTime() {
 /// Switches Link's age and respawns him at the last entrance he entered.
 void RegisterSwitchAge() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameFrameUpdate>([]() {
+        if (!GameInteractor::IsSaveLoaded()) {
+            CVarClear("gSwitchAge");
+            return;
+        }
         static bool warped = false;
         static Vec3f playerPos;
         static int16_t playerYaw;
         static RoomContext* roomCtx;
         static s32 roomNum;
-
-        if (!gPlayState) return;
 
         if (CVarGetInteger("gSwitchAge", 0) && !warped) {
             playerPos = GET_PLAYER(gPlayState)->actor.world.pos;
@@ -217,7 +223,7 @@ void RegisterSwitchAge() {
                 func_80097534(gPlayState, roomCtx);  // load map for new room (unloading the previous room)
             }
             warped = false;
-            CVarSetInteger("gSwitchAge", 0);
+            CVarClear("gSwitchAge");
         }
     });
 }
@@ -226,7 +232,8 @@ void RegisterSwitchAge() {
 void RegisterOcarinaTimeTravel() {
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnOcarinaSongAction>([]() {
-        if (!gPlayState) {
+        if (!GameInteractor::IsSaveLoaded()) {
+            CVarClear("gTimeTravel");
             return;
         }
 
@@ -258,14 +265,12 @@ void RegisterOcarinaTimeTravel() {
 
 void AutoSave(GetItemEntry itemEntry) {
     u8 item = itemEntry.itemId;
+    bool performSave = false;
     // Don't autosave immediately after buying items from shops to prevent getting them for free!
     // Don't autosave in the Chamber of Sages since resuming from that map breaks the game
     // Don't autosave during the Ganon fight when picking up the Master Sword
-    // Don't autosave in the fishing pond to prevent getting rod on B outside of the pond
-    // Don't autosave in the bombchu bowling alley to prevent having chus on B outside of the minigame
-    // Don't autosave in grottos since resuming from grottos breaks the game.
     if ((CVarGetInteger("gAutosave", AUTOSAVE_OFF) != AUTOSAVE_OFF) && (gPlayState != NULL) && (gSaveContext.pendingSale == ITEM_NONE) &&
-        (gPlayState->gameplayFrames > 60 && gSaveContext.cutsceneIndex < 0xFFF0) && (gPlayState->sceneNum != SCENE_GANON_BOSS)) {
+        (gPlayState->gameplayFrames > 60 && gSaveContext.cutsceneIndex < 0xFFF0) && (gPlayState->sceneNum != SCENE_GANON_BOSS) && (gPlayState->sceneNum != SCENE_CHAMBER_OF_THE_SAGES)) {
         if (((CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_ALL_ITEMS) || (CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_ALL_ITEMS)) && (item != ITEM_NONE)) {
             // Autosave for all items
             performSave = true;
@@ -326,25 +331,9 @@ void AutoSave(GetItemEntry itemEntry) {
                    CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION) {
             performSave = true;
         }
-        if (gPlayState->sceneNum == SCENE_FAIRYS_FOUNTAIN || gPlayState->sceneNum == SCENE_GROTTOS ||
-            gPlayState->sceneNum == SCENE_CHAMBER_OF_THE_SAGES || gPlayState->sceneNum == SCENE_FISHING_POND ||
-            gPlayState->sceneNum == SCENE_BOMBCHU_BOWLING_ALLEY) {
-            if (CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_MAJOR_ITEMS ||
-                CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION_AND_ALL_ITEMS ||
-                CVarGetInteger("gAutosave", AUTOSAVE_OFF) == AUTOSAVE_LOCATION) {
-                performSave = false;
-                return;
-            }
-            if (performSave) {
-                performSave = false;
-                performDelayedSave = true;
-            }
-            return;
-        }
-        if (performSave || performDelayedSave) {
+        if (performSave) {
             Play_PerformSave(gPlayState);
             performSave = false;
-            performDelayedSave = false;
         }
     }
 }
@@ -643,15 +632,15 @@ f32 triforcePieceScale;
 
 void RegisterTriforceHunt() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        Player* player = GET_PLAYER(gPlayState);
+        uint8_t currentPieces = gSaveContext.triforcePiecesCollected;
+        uint8_t requiredPieces = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED);
+
         if (!GameInteractor::IsGameplayPaused() &&
             OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT)) {
 
             // Warp to credits
             if (GameInteractor::State::TriforceHuntCreditsWarpActive) {
-                gPlayState->nextEntranceIndex = 0x6B;
-                gSaveContext.nextCutsceneIndex = 0xFFF2;
-                gPlayState->sceneLoadFlag = 0x14;
-                gPlayState->fadeTransition = 3;
                 GameInteractor::State::TriforceHuntCreditsWarpActive = 0;
             }
 
@@ -664,16 +653,23 @@ void RegisterTriforceHunt() {
                 triforcePieceScale = 0.0f;
                 GameInteractor::State::TriforceHuntPieceGiven = 0;
             }
+        }
+    });
 
-            uint8_t currentPieces = gSaveContext.triforcePiecesCollected;
-            uint8_t requiredPieces = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED);
-            
-            // Give Boss Key when player loads back into the savefile.
-            if (currentPieces >= requiredPieces && gPlayState->sceneLoadFlag != 0x14 &&
-                (1 << 0 & gSaveContext.inventory.dungeonItems[SCENE_GANONS_TOWER]) == 0) {
-                GetItemEntry getItemEntry = ItemTableManager::Instance->RetrieveItemEntry(MOD_RANDOMIZER, RG_GANONS_CASTLE_BOSS_KEY);
-                GiveItemEntryWithoutActor(gPlayState, getItemEntry);
-            }
+    
+}
+
+void RegisterGrantGanonsBossKey() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        Player* player = GET_PLAYER(gPlayState);
+        // Triforce Hunt needs the check if the player isn't being teleported to the credits scene.
+        if (!GameInteractor::IsGameplayPaused() && IS_RANDO && Flags_GetRandomizerInf(RAND_INF_GRANT_GANONS_BOSSKEY) &&
+                gPlayState->sceneLoadFlag != 0x14 &&
+                (1 << 0 & gSaveContext.inventory.dungeonItems[SCENE_GANONS_TOWER]) == 0 && player->stateFlags1 !=
+                PLAYER_STATE1_INPUT_DISABLED) {
+            GetItemEntry getItemEntry =
+                ItemTableManager::Instance->RetrieveItemEntry(MOD_RANDOMIZER, RG_GANONS_CASTLE_BOSS_KEY);
+            GiveItemEntryWithoutActor(gPlayState, getItemEntry);
         }
     });
 }
@@ -1045,8 +1041,16 @@ void RegisterRandomizedEnemySizes() {
         Player* player = GET_PLAYER(gPlayState);
         Actor* actor = static_cast<Actor*>(refActor);
 
-        // Only apply to enemies and bosses. Exclude the wobbly platforms in Jabu because they need to act like platforms.
-        if (!CVarGetInteger("gRandomizedEnemySizes", 0) || (actor->category != ACTORCAT_ENEMY && actor->category != ACTORCAT_BOSS) || actor->id == ACTOR_EN_BROB) {
+        // Exclude wobbly platforms in Jabu because they need to act like platforms.
+        // Exclude Dead Hand hands and Bongo Bongo main body because they make the fights (near) impossible.
+        uint8_t excludedEnemy = actor->id == ACTOR_EN_BROB || actor->id == ACTOR_EN_DHA || (actor->id == ACTOR_BOSS_SST && actor->params == -1);
+
+        // Dodongo, Volvagia and Dead Hand are always smaller because they're impossible when bigger.
+        uint8_t smallOnlyEnemy =
+            actor->id == ACTOR_BOSS_DODONGO || actor->id == ACTOR_BOSS_FD || actor->id == ACTOR_BOSS_FD2 || ACTOR_EN_DH;
+
+        // Only apply to enemies and bosses.
+        if (!CVarGetInteger("gRandomizedEnemySizes", 0) || (actor->category != ACTORCAT_ENEMY && actor->category != ACTORCAT_BOSS) || excludedEnemy) {
             return;
         }
 
@@ -1055,9 +1059,8 @@ void RegisterRandomizedEnemySizes() {
 
         uint8_t bigActor = rand() % 2;
 
-        // Big actor. Dodongo and Volvagia are always smaller because they're impossible when bigger.
-        if (bigActor && actor->id != ACTOR_BOSS_DODONGO && actor->id != ACTOR_BOSS_FD &&
-            actor->id != ACTOR_BOSS_FD2) {
+        // Big actor
+        if (bigActor && !smallOnlyEnemy) {
             randomNumber = rand() % 200;
             // Between 100% and 300% size.
             randomScale = 1.0f + (randomNumber / 100);
@@ -1069,6 +1072,99 @@ void RegisterRandomizedEnemySizes() {
         }
 
         Actor_SetScale(actor, actor->scale.z * randomScale);
+    });
+}
+
+static CollisionPoly snowballPoly;
+static Vec3f snowballPos;
+static f32 raycastResult;
+
+static u32 iceBlockParams[] = {
+    0x214,
+    0x1,
+    0x11,
+    0x10,
+    0x20,
+};
+
+void RegisterSnowballs() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneSpawnActors>([]() {
+        if (gPlayState->sceneNum != SCENE_HYRULE_FIELD && gPlayState->sceneNum != SCENE_KAKARIKO_VILLAGE) {
+            return;
+        }
+
+        int actorsSpawned = 0;
+
+        while (actorsSpawned < 30) {
+            snowballPos.x = (float)(Random(
+                (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? -10000 : -2700) + 10000,
+                (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? 5000 : 2000) + 10000
+            ) - (float)10000.0f);
+            snowballPos.y = 5000;
+            snowballPos.z = (float)(Random(
+                (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? -1000 : -2000) + 10000,
+                (gPlayState->sceneNum == SCENE_HYRULE_FIELD ? 15000 : 2000) + 10000
+            ) - (float)10000.0f);
+
+            raycastResult = BgCheck_AnyRaycastFloor1(&gPlayState->colCtx, &snowballPoly, &snowballPos);
+
+            if (raycastResult > BGCHECK_Y_MIN) {
+                Actor_Spawn(&gPlayState->actorCtx, gPlayState, gEnSnowballId, snowballPos.x, raycastResult,
+                            snowballPos.z, 0, 0, 0, gPlayState->sceneNum == SCENE_HYRULE_FIELD, 0);
+                actorsSpawned++;
+            }
+        }
+    });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneSpawnActors>([]() {
+        if (gPlayState->sceneNum != SCENE_LAKE_HYLIA) {
+            return;
+        }
+
+        int actorsSpawned = 0;
+
+        Vec3f spawnedIceBlockPos[15];
+
+        while (actorsSpawned < 15) {
+            Vec3f iceBlockPos;
+            iceBlockPos.x = (float)(Random(
+                (-4200) + 10000,
+                (3000) + 10000
+            ) - (float)10000.0f);
+            iceBlockPos.y = -1713.0f;
+            iceBlockPos.z = (float)(Random(
+                (2600) + 10000,
+                (9000) + 10000
+            ) - (float)10000.0f);
+
+            raycastResult = BgCheck_AnyRaycastFloor1(&gPlayState->colCtx, &snowballPoly, &iceBlockPos);
+
+            if (raycastResult > BGCHECK_Y_MIN) {
+
+                bool overlaps = false;
+                for (int i = 0; i < actorsSpawned; i++) {
+                    if (Math_Vec3f_DistXZ(&spawnedIceBlockPos[i], &iceBlockPos) < 500.0f) {
+                        overlaps = true;
+                        break;
+                    }
+                }
+
+                if (overlaps) {
+                    continue;
+                }
+
+                if (LINK_IS_ADULT && !Flags_GetEventChkInf(EVENTCHKINF_RAISED_LAKE_HYLIA_WATER)) {
+                    iceBlockPos.y = raycastResult;
+                } else {
+                    iceBlockPos.y = -1310.0f;
+                }
+
+                Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_BG_SPOT08_ICEBLOCK, iceBlockPos.x, iceBlockPos.y,
+                            iceBlockPos.z, 0, (s16)Random(0, 0xFFFF), 0, RandomElement(iceBlockParams), 0);
+                spawnedIceBlockPos[actorsSpawned] = iceBlockPos;
+                actorsSpawned++;
+            }
+        }
     });
 }
 
@@ -1096,9 +1192,11 @@ void InitMods() {
     RegisterMenuPathFix();
     RegisterMirrorModeHandler();
     RegisterTriforceHunt();
+    RegisterGrantGanonsBossKey();
     RegisterEnemyDefeatCounts();
     RegisterAltTrapTypes();
     RegisterRandomizerSheikSpawn();
     RegisterRandomizedEnemySizes();
+    RegisterSnowballs();
     NameTag_RegisterHooks();
 }
