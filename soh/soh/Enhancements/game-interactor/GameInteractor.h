@@ -65,6 +65,7 @@ typedef enum {
 extern "C" {
 #endif
 uint8_t GameInteractor_NoUIActive();
+void GameInteractor_SetNoUIActive(uint8_t state);
 GILinkSize GameInteractor_GetLinkSize();
 void GameInteractor_SetLinkSize(GILinkSize size);
 uint8_t GameInteractor_InvisibleLinkActive();
@@ -192,6 +193,8 @@ public:
     DEFINE_HOOK(OnUpdateFileNameSelection, void(int16_t charCode));
     
     DEFINE_HOOK(OnSetGameLanguage, void());
+
+    DEFINE_HOOK(OnAssetAltChange, void());
 
     // Helpers
     static bool IsSaveLoaded();
