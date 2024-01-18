@@ -1,6 +1,6 @@
 #pragma once
 
-#include "keys.hpp"
+#include "../randomizerTypes.h"
 #include <cstdint>
 
 namespace Logic {
@@ -189,18 +189,22 @@ extern bool FreeFairies;
 extern bool FairyPond;
 extern bool BombchuDrop;
 
-extern bool BuyBombchus10;
-extern bool BuyBombchus20;
+extern bool BuyBombchus;
 extern bool BuyArrow;
 extern bool BuyBomb;
-extern bool BuyGPotion;
-extern bool BuyBPotion;
+extern bool BuyMagicPotion;
 extern bool BuySeed;
 extern bool MagicRefill;
 
 extern uint8_t PieceOfHeart;
 extern uint8_t HeartContainer;
 extern bool DoubleDefense;
+
+extern bool OcarinaAButton;
+extern bool OcarinaCLeftButton;
+extern bool OcarinaCRightButton;
+extern bool OcarinaCUpButton;
+extern bool OcarinaCDownButton;
 
 /* --- HELPERS --- */
 /* These are used to simplify reading the logic, but need to be updated
@@ -268,6 +272,7 @@ extern bool HookshotOrBoomerang;
 extern bool CanGetNightTimeGS;
 extern bool BigPoeKill;
 
+extern uint8_t OcarinaButtons;
 extern uint8_t BaseHearts;
 extern uint8_t Hearts;
 extern uint8_t Multiplier;
@@ -306,6 +311,16 @@ extern bool AtNight;
 extern bool LinksCow;
 extern uint8_t Age;
 extern bool CanCompleteTriforce;
+
+extern bool CanSummonGohma;
+extern bool CanSummonKingDodongo;
+extern bool CanSummonBarinade;
+extern bool CanSummonPhantomGanon;
+extern bool CanSummonVolvagia;
+extern bool CanSummonMorpha;
+extern bool CanSummonBongoBongo;
+extern bool CanSummonTwinrova;
+extern bool CanSummonGanon;
 
 // Events
 extern bool ShowedMidoSwordAndShield;
@@ -368,11 +383,12 @@ enum class GlitchDifficulty {
 };
 
 void UpdateHelpers();
-bool CanPlay(bool song);
-bool CanUse(uint32_t itemName);
+bool CanUse(RandomizerGet itemName);
 bool HasProjectile(HasProjectileAge age);
-bool SmallKeys(Key dungeon, uint8_t requiredAmount);
-bool SmallKeys(Key dungeon, uint8_t requiredAmountGlitchless, uint8_t requiredAmountGlitched);
+bool HasBossSoul(RandomizerGet itemName);
+bool CanBreakPots();
+bool SmallKeys(RandomizerRegion dungeon, uint8_t requiredAmount);
+bool SmallKeys(RandomizerRegion dungeon, uint8_t requiredAmountGlitchless, uint8_t requiredAmountGlitched);
 bool CanDoGlitch(GlitchType glitch);
 bool EventsUpdated();
 void LogicReset();

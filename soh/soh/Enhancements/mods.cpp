@@ -653,7 +653,8 @@ void UpdateMirrorModeState(int32_t sceneNum) {
                         (sceneNum == SCENE_GANON_BOSS);
 
     if (mirroredMode == MIRRORED_WORLD_RANDOM_SEEDED || mirroredMode == MIRRORED_WORLD_DUNGEONS_RANDOM_SEEDED) {
-        uint32_t seed = sceneNum + (IS_RANDO ? gSaveContext.finalSeed : gSaveContext.sohStats.fileCreatedAt);
+        uint32_t seed = sceneNum + (IS_RANDO ? Rando::Context::GetInstance()->GetSettings()->GetSeed()
+                                             : gSaveContext.sohStats.fileCreatedAt);
         Random_Init(seed);
     }
 
@@ -1071,7 +1072,7 @@ void RegisterAltTrapTypes() {
 void RegisterRandomizerSheikSpawn() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneSpawnActors>([]() {
         if (!gPlayState) return;
-        bool canSheik = (OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIAL_COUNT) != RO_GANONS_TRIALS_SKIP && 
+        bool canSheik = (OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_TRIAL_COUNT) != 0 &&
           OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_LIGHT_ARROWS_HINT));
         if (!IS_RANDO || !LINK_IS_ADULT || !canSheik) return;
         switch (gPlayState->sceneNum) {
@@ -1088,6 +1089,64 @@ void RegisterRandomizerSheikSpawn() {
             default: break;
         }
     });
+}
+
+//Boss souls require an additional item (represented by a RAND_INF) to spawn a boss in a particular lair
+void RegisterBossSouls() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](void* actor) {
+        if (!gPlayState) return;
+        if (!IS_RANDO || !(OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_BOSS_SOULS))) return;
+        RandomizerInf rand_inf = RAND_INF_MAX;
+        Actor* actual = (Actor*)actor;
+        switch (gPlayState->sceneNum){
+            case SCENE_DEKU_TREE_BOSS:
+                rand_inf = RAND_INF_GOHMA_SOUL;
+                break;
+            case SCENE_DODONGOS_CAVERN_BOSS:
+                rand_inf = RAND_INF_KING_DODONGO_SOUL;
+                break;
+            case SCENE_JABU_JABU_BOSS:
+                rand_inf = RAND_INF_BARINADE_SOUL;
+                break;
+            case SCENE_FOREST_TEMPLE_BOSS:
+                rand_inf = RAND_INF_PHANTOM_GANON_SOUL;
+                break;
+            case SCENE_FIRE_TEMPLE_BOSS:
+                rand_inf = RAND_INF_VOLVAGIA_SOUL;
+                break;
+            case SCENE_WATER_TEMPLE_BOSS:
+                rand_inf = RAND_INF_MORPHA_SOUL;
+                break;
+            case SCENE_SHADOW_TEMPLE_BOSS:
+                rand_inf = RAND_INF_BONGO_BONGO_SOUL;
+                break;
+            case SCENE_SPIRIT_TEMPLE_BOSS:
+                rand_inf = RAND_INF_TWINROVA_SOUL;
+                break;
+            case SCENE_GANONDORF_BOSS:
+            case SCENE_GANON_BOSS:
+                if (OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_BOSS_SOULS) == RO_BOSS_SOULS_ON_PLUS_GANON) {
+                    rand_inf = RAND_INF_GANON_SOUL;
+                }
+                break;
+            default: break;
+        }
+
+    //Deletes all actors in the boss category if the soul isn't found.
+    //Some actors, like Dark Link, Arwings, and Zora's Sapphire...?, are in this category despite not being actual bosses,
+    //so ignore any "boss" if `rand_inf` doesn't change from RAND_INF_MAX.
+    if (rand_inf != RAND_INF_MAX) {
+         if (!Flags_GetRandomizerInf(rand_inf) && actual->category == ACTORCAT_BOSS) {
+            Actor_Delete(&gPlayState->actorCtx, actual, gPlayState);
+        }
+        //Special case for Phantom Ganon's horse (and fake), as they're considered "background actors",
+        //but still control the boss fight flow.
+        if (!Flags_GetRandomizerInf(RAND_INF_PHANTOM_GANON_SOUL) && actual->id == ACTOR_EN_FHG) {
+            Actor_Delete(&gPlayState->actorCtx, actual, gPlayState);
+        }
+    }
+    });
+
 }
 
 void RegisterRandomizedEnemySizes() {
@@ -1253,6 +1312,7 @@ void InitMods() {
     RegisterEnemyDefeatCounts();
     RegisterAltTrapTypes();
     RegisterRandomizerSheikSpawn();
+    RegisterBossSouls();
     RegisterRandomizedEnemySizes();
     RegisterToTMedallions();
     NameTag_RegisterHooks();

@@ -12,12 +12,13 @@
 #include <string.h>
 
 #include "global.h"
+#include "entrance.h"
 
 extern PlayState* gPlayState;
 
 //Overwrite the dynamic exit for the OGC Fairy Fountain to be 0x3E8 instead
 //of 0x340 (0x340 will stay as the exit for the HC Fairy Fountain -> Castle Grounds)
-s16 dynamicExitList[] = { 
+s16 dynamicExitList[] = {
     ENTR_DEATH_MOUNTAIN_TRAIL_4,
     ENTR_DEATH_MOUNTAIN_CRATER_3,
     ENTR_POTION_SHOP_KAKARIKO_1, // OGC Fairy -- ENTR_POTION_SHOP_KAKARIKO_1 unused
@@ -128,6 +129,7 @@ void Entrance_ResetEntranceTable(void) {
 }
 
 void Entrance_Init(void) {
+    EntranceOverride* entranceOverrides = Randomizer_GetEntranceOverrides();
     s32 index;
 
     size_t blueWarpRemapIdx = 0;
@@ -167,13 +169,13 @@ void Entrance_Init(void) {
     // Then overwrite the indices which are shuffled
     for (size_t i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
 
-        if (Entrance_EntranceIsNull(&gSaveContext.entranceOverrides[i])) {
+        if (Entrance_EntranceIsNull(&entranceOverrides[i])) {
             break;
         }
 
-        s16 originalIndex = gSaveContext.entranceOverrides[i].index;
-        s16 blueWarpIndex = gSaveContext.entranceOverrides[i].blueWarp;
-        s16 overrideIndex = gSaveContext.entranceOverrides[i].override;
+        s16 originalIndex = entranceOverrides[i].index;
+        s16 blueWarpIndex = entranceOverrides[i].blueWarp;
+        s16 overrideIndex = entranceOverrides[i].override;
 
         //Overwrite grotto related indices
         if (originalIndex >= ENTRANCE_RANDO_GROTTO_EXIT_START) {
@@ -800,6 +802,7 @@ u8 Entrance_GetIsEntranceDiscovered(u16 entranceIndex) {
 }
 
 void Entrance_SetEntranceDiscovered(u16 entranceIndex, u8 isReversedEntrance) {
+    EntranceOverride* entranceOverrides = Randomizer_GetEntranceOverrides();
     // Skip if already set to save time from setting the connected entrance or
     // if this entrance is outside of the randomized entrance range (i.e. is a dynamic entrance)
     if (entranceIndex > MAX_ENTRANCE_RANDO_USED_INDEX || Entrance_GetIsEntranceDiscovered(entranceIndex)) {
@@ -815,8 +818,8 @@ void Entrance_SetEntranceDiscovered(u16 entranceIndex, u8 isReversedEntrance) {
         // Set reverse entrance when not decoupled
         if (!Randomizer_GetSettingValue(RSK_DECOUPLED_ENTRANCES) && !isReversedEntrance) {
             for (size_t i = 0; i < ENTRANCE_OVERRIDES_MAX_COUNT; i++) {
-                if (entranceIndex == gSaveContext.entranceOverrides[i].index) {
-                    Entrance_SetEntranceDiscovered(gSaveContext.entranceOverrides[i].overrideDestination, true);
+                if (entranceIndex == entranceOverrides[i].index) {
+                    Entrance_SetEntranceDiscovered(entranceOverrides[i].overrideDestination, true);
                     break;
                 }
             }

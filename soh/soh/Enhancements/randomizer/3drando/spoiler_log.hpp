@@ -28,9 +28,10 @@ typedef enum {
     SPOILER_CHK_MERCHANT,
     SPOILER_CHK_GRAVEDIGGER,
     SPOILER_CHK_RANDOMIZER_INF,
+    SPOILER_CHK_POT,
 } SpoilerCollectionCheckType;
 
-// Location groups for checks, used to group the checks by logical location
+// GetLocation groups for checks, used to group the checks by logical location
 typedef enum {
     GROUP_NO_GROUP,
     GROUP_KOKIRI_FOREST,              // 0x55, 0x28
@@ -74,7 +75,7 @@ typedef enum {
 } SpoilerItemRevealType;
 
 #define SPOILER_SPHERES_MAX 50
-#define SPOILER_ITEMS_MAX 512
+#define SPOILER_ITEMS_MAX 1024
 #define SPOILER_STRING_DATA_SIZE 16384
 
 typedef struct {
@@ -111,5 +112,5 @@ const RandomizerHash& GetRandomizerHash();
 
 void WriteIngameSpoilerLog();
 
-const char* SpoilerLog_Write(int language);
+const char* SpoilerLog_Write();
 const SpoilerData& GetSpoilerData();

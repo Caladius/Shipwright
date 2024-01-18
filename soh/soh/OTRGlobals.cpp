@@ -41,6 +41,8 @@
 #include "Enhancements/randomizer/randomizer_item_tracker.h"
 #include "Enhancements/randomizer/randomizer_check_tracker.h"
 #include "Enhancements/randomizer/3drando/random.hpp"
+#include "Enhancements/randomizer/static_data.h"
+#include "Enhancements/randomizer/dungeon.h"
 #include "Enhancements/gameplaystats.h"
 #include "Enhancements/n64_weird_frame_data.inc"
 #include "frame_interpolation.h"
@@ -281,7 +283,7 @@ OTRGlobals::OTRGlobals() {
         );
     });
     OTRFiles.insert(OTRFiles.end(), patchOTRs.begin(), patchOTRs.end());
-    std::unordered_set<uint32_t> ValidHashes = { 
+    std::unordered_set<uint32_t> ValidHashes = {
         OOT_PAL_MQ,
         OOT_NTSC_JP_MQ,
         OOT_NTSC_US_MQ,
@@ -307,7 +309,7 @@ OTRGlobals::OTRGlobals() {
 
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context->InitResourceManager(OTRFiles, {}, 3);
-    
+
     context->InitControlDeck({BTN_MODIFIER1, BTN_MODIFIER2});
     context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
@@ -317,7 +319,7 @@ OTRGlobals::OTRGlobals() {
     auto sohInputEditorWindow = std::make_shared<SohInputEditorWindow>("gControllerConfigurationEnabled", "Input Editor");
     context->InitWindow(sohInputEditorWindow);
     context->InitAudio();
-    
+
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(LUS::ResourceType::SOH_Animation, "Animation", std::make_shared<LUS::AnimationFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(LUS::ResourceType::SOH_PlayerAnimation, "PlayerAnimation", std::make_shared<LUS::PlayerAnimationFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(LUS::ResourceType::SOH_Room, "Room", std::make_shared<LUS::SceneFactory>()); // Is room scene? maybe?
@@ -333,6 +335,9 @@ OTRGlobals::OTRGlobals() {
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(LUS::ResourceType::SOH_Background, "Background", std::make_shared<LUS::BackgroundFactory>());
 
     gSaveStateMgr = std::make_shared<SaveStateMgr>();
+    gRandoContext = Rando::Context::CreateInstance();
+    gRandoContext->AddExcludedOptions();
+    gRandoContext->GetSettings()->CreateOptions();
     gRandomizer = std::make_shared<Randomizer>();
 
     hasMasterQuest = hasOriginal = false;
@@ -699,7 +704,7 @@ std::unordered_map<ItemID, GetItemID> ItemIDtoGetItemIDMap {
     { ITEM_BUG, GI_BUGS },
     { ITEM_BULLET_BAG_30, GI_BULLET_BAG_30 },
     { ITEM_BULLET_BAG_40, GI_BULLET_BAG_40 },
-    { ITEM_BULLET_BAG_50, GI_BULLET_BAG_50 }, 
+    { ITEM_BULLET_BAG_50, GI_BULLET_BAG_50 },
     { ITEM_CHICKEN, GI_CHICKEN },
     { ITEM_CLAIM_CHECK, GI_CLAIM_CHECK },
     { ITEM_COJIRO, GI_COJIRO },
@@ -917,7 +922,7 @@ void CheckSoHOTRVersion(std::string otrPath) {
 }
 
 // Checks the program version stored in the otr and compares the major value to soh
-// For Windows/Mac/Linux if the version doesn't match, offer to 
+// For Windows/Mac/Linux if the version doesn't match, offer to
 void DetectOTRVersion(std::string fileName, bool isMQ) {
     bool isOtrOld = false;
     std::string otrPath = LUS::Context::LocateFileAcrossAppDirs(fileName, appShortName);
@@ -1480,10 +1485,11 @@ uint32_t IsSceneMasterQuest(s16 sceneNum) {
                 value = 1;
             } else {
                 value = 0;
-                if (IS_RANDO &&
-                    !OTRGlobals::Instance->gRandomizer->masterQuestDungeons.empty() &&
-                    OTRGlobals::Instance->gRandomizer->masterQuestDungeons.contains(sceneNum)) {
-                    value = 1;
+                if (IS_RANDO) {
+                    auto dungeon = OTRGlobals::Instance->gRandoContext->GetDungeons()->GetDungeonFromScene(sceneNum);
+                    if (dungeon != nullptr && dungeon->IsMQ()) {
+                        value = 1;
+                    }
                 }
             }
         }
@@ -1686,7 +1692,12 @@ extern "C" char* ResourceMgr_LoadIfDListByName(const char* filePath) {
 }
 
 extern "C" Sprite* GetSeedTexture(uint8_t index) {
-    return OTRGlobals::Instance->gRandomizer->GetSeedTexture(index);
+
+    return OTRGlobals::Instance->gRandoContext->GetSeedTexture(index);
+}
+
+extern "C" uint8_t GetSeedIconIndex(uint8_t index) {
+    return OTRGlobals::Instance->gRandoContext->hashIconIndexes[index];
 }
 
 extern "C" char* ResourceMgr_LoadPlayerAnimByName(const char* animPath) {
@@ -2335,36 +2346,20 @@ extern "C" int GetEquipNowMessage(char* buffer, char* src, const int maxBufferSi
     return 0;
 }
 
-extern "C" void Randomizer_LoadSettings(const char* spoilerFileName) {
-    OTRGlobals::Instance->gRandomizer->LoadRandomizerSettings(spoilerFileName);
+extern "C" void Randomizer_ParseSpoiler(const char* fileLoc) {
+    OTRGlobals::Instance->gRandoContext->ParseSpoiler(fileLoc, CVarGetInteger("gPlandoMode", 0));
 }
 
-extern "C" void Randomizer_LoadHintLocations(const char* spoilerFileName) {
-    OTRGlobals::Instance->gRandomizer->LoadHintLocations(spoilerFileName);
+extern "C" void Randomizer_LoadHintMessages() {
+    OTRGlobals::Instance->gRandomizer->LoadHintMessages();
 }
 
-extern "C" void Randomizer_LoadMerchantMessages(const char* spoilerFileName) {
-    OTRGlobals::Instance->gRandomizer->LoadMerchantMessages(spoilerFileName);
-}
-
-extern "C" void Randomizer_LoadRequiredTrials(const char* spoilerFileName) {
-    OTRGlobals::Instance->gRandomizer->LoadRequiredTrials(spoilerFileName);
-}
-
-extern "C" void Randomizer_LoadMasterQuestDungeons(const char* spoilerFileName) {
-    OTRGlobals::Instance->gRandomizer->LoadMasterQuestDungeons(spoilerFileName);
-}
-
-extern "C" void Randomizer_LoadItemLocations(const char* spoilerFileName, bool silent) {
-    OTRGlobals::Instance->gRandomizer->LoadItemLocations(spoilerFileName, silent);
+extern "C" void Randomizer_LoadMerchantMessages() {
+    OTRGlobals::Instance->gRandomizer->LoadMerchantMessages();
 }
 
 extern "C" bool Randomizer_IsTrialRequired(RandomizerInf trial) {
     return OTRGlobals::Instance->gRandomizer->IsTrialRequired(trial);
-}
-
-extern "C" void Randomizer_LoadEntranceOverrides(const char* spoilerFileName, bool silent) {
-    OTRGlobals::Instance->gRandomizer->LoadEntranceOverrides(spoilerFileName, silent);
 }
 
 extern "C" u32 SpoilerFileExists(const char* spoilerFileName) {
@@ -2372,7 +2367,7 @@ extern "C" u32 SpoilerFileExists(const char* spoilerFileName) {
 }
 
 extern "C" u8 Randomizer_GetSettingValue(RandomizerSettingKey randoSettingKey) {
-    return OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(randoSettingKey);
+    return OTRGlobals::Instance->gRandoContext->GetOption(randoSettingKey).GetSelectedOptionIndex();
 }
 
 extern "C" RandomizerCheck Randomizer_GetCheckFromActor(s16 actorId, s16 sceneNum, s16 actorParams) {
@@ -2391,12 +2386,19 @@ extern "C" CowIdentity Randomizer_IdentifyCow(s32 sceneNum, s32 posX, s32 posZ) 
     return OTRGlobals::Instance->gRandomizer->IdentifyCow(sceneNum, posX, posZ);
 }
 
+extern "C" PotIdentity Randomizer_IdentifyPot(s32 sceneNum, s32 posX, s32 posZ) {
+    return OTRGlobals::Instance->gRandomizer->IdentifyPot(sceneNum, posX, posZ);
+}
+
 extern "C" GetItemEntry ItemTable_Retrieve(int16_t getItemID) {
     GetItemEntry giEntry = ItemTableManager::Instance->RetrieveItemEntry(MOD_NONE, getItemID);
     return giEntry;
 }
 
 extern "C" GetItemEntry ItemTable_RetrieveEntry(s16 tableID, s16 getItemID) {
+    if (tableID == MOD_RANDOMIZER) {
+        return Rando::StaticData::RetrieveItem(static_cast<RandomizerGet>(getItemID)).GetGIEntry_Copy();
+    }
     return ItemTableManager::Instance->RetrieveItemEntry(tableID, getItemID);
 }
 
@@ -2418,6 +2420,38 @@ extern "C" GetItemEntry Randomizer_GetItemFromKnownCheckWithoutObtainabilityChec
 
 extern "C" ItemObtainability Randomizer_GetItemObtainabilityFromRandomizerCheck(RandomizerCheck randomizerCheck) {
     return OTRGlobals::Instance->gRandomizer->GetItemObtainabilityFromRandomizerCheck(randomizerCheck);
+}
+
+extern "C" void Randomizer_GenerateSeed() {
+    std::string seed = "";
+    if (OTRGlobals::Instance->gRandoContext->IsSpoilerLoaded()) {
+        seed = OTRGlobals::Instance->gRandoContext->GetSettings()->GetSeedString();
+    }
+    GenerateRandomizer(seed);
+}
+
+extern "C" uint8_t Randomizer_IsSeedGenerated() {
+    return OTRGlobals::Instance->gRandoContext->IsSeedGenerated() ? 1 : 0;
+}
+
+extern "C" void Randomizer_SetSeedGenerated(bool seedGenerated) {
+    OTRGlobals::Instance->gRandoContext->SetSeedGenerated(seedGenerated);
+}
+
+extern "C" uint8_t Randomizer_IsSpoilerLoaded() {
+    return OTRGlobals::Instance->gRandoContext->IsSpoilerLoaded() ? 1 : 0;
+}
+
+extern "C" void Randomizer_SetSpoilerLoaded(bool spoilerLoaded) {
+    OTRGlobals::Instance->gRandoContext->SetSpoilerLoaded(spoilerLoaded);
+}
+
+extern "C" uint8_t Randomizer_IsPlandoLoaded() {
+    return OTRGlobals::Instance->gRandoContext->IsPlandoLoaded() ? 1 : 0;
+}
+
+extern "C" void Randomizer_SetPlandoLoaded(bool plandoLoaded) {
+    OTRGlobals::Instance->gRandoContext->SetPlandoLoaded(plandoLoaded);
 }
 
 CustomMessage Randomizer_GetCustomGetItemMessage(Player* player) {
@@ -2454,7 +2488,7 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
                 messageEntry = Randomizer_GetCustomGetItemMessage(player);
             }
         } else if (textId == TEXT_ITEM_DUNGEON_MAP || textId == TEXT_ITEM_COMPASS) {
-            if (DUNGEON_ITEMS_CAN_BE_OUTSIDE_DUNGEON(RSK_STARTING_MAPS_COMPASSES)) {
+            if (DUNGEON_ITEMS_CAN_BE_OUTSIDE_DUNGEON(RSK_SHUFFLE_MAPANDCOMPASS)) {
                 if (textId == TEXT_ITEM_DUNGEON_MAP) {
                     messageEntry = OTRGlobals::Instance->gRandomizer->GetMapGetItemMessageWithHint(player->getItemEntry);
                 } else {
@@ -2544,11 +2578,11 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
                    textId == TEXT_HUGE_RUPEE)) {
             messageEntry = Randomizer::GetRupeeMessage(textId);
             // In rando, replace Navi's general overworld hints with rando-related gameplay tips
-        } else if (CVarGetInteger("gRandoRelevantNavi", 1) && textId >= 0x0140 && textId <= 0x015F) {
+        } else if (CVarGetInteger("gRandoRelevantNavi", 1) && textId >= TEXT_NAVI_DEKU_TREE_SUMMONS && textId <= TEXT_NAVI_TRY_TO_KEEP_MOVING) {
             u16 naviTextId = Random(0, NUM_NAVI_MESSAGES);
             messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::NaviRandoMessageTableID, naviTextId);
-        } else if (Randomizer_GetSettingValue(RSK_SHUFFLE_MAGIC_BEANS) && textId == TEXT_BEAN_SALESMAN) {
-            messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::merchantMessageTableID, TEXT_BEAN_SALESMAN);
+        } else if (Randomizer_GetSettingValue(RSK_SHUFFLE_MAGIC_BEANS) && textId == TEXT_BEAN_SALESMAN_BUY_FOR_10) {
+            messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::merchantMessageTableID, TEXT_BEAN_SALESMAN_BUY_FOR_10);
         } else if (Randomizer_GetSettingValue(RSK_SHUFFLE_MERCHANTS) != RO_SHUFFLE_MERCHANTS_OFF && (textId == TEXT_MEDIGORON ||
           (textId == TEXT_GRANNYS_SHOP && !Flags_GetRandomizerInf(RAND_INF_MERCHANTS_GRANNYS_SHOP) &&
                     (Randomizer_GetSettingValue(RSK_SHUFFLE_ADULT_TRADE) || INV_CONTENT(ITEM_CLAIM_CHECK) == ITEM_CLAIM_CHECK)) ||
@@ -2576,7 +2610,7 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
             messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::randoMiscHintsTableID, TEXT_DAMPES_DIARY);
         } else if (play->sceneNum == SCENE_TREASURE_BOX_SHOP &&
                    Randomizer_GetSettingValue(RSK_GREG_HINT) &&
-                   (textId == 0x704C || textId == 0x6E || textId == 0x84)) {
+                   (textId == TEXT_CHEST_GAME_PROCEED || textId == TEXT_CHEST_GAME_REAL_GAMBLER || textId == TEXT_CHEST_GAME_THANKS_A_LOT)) {
             messageEntry = CustomMessageManager::Instance->RetrieveMessage(Randomizer::randoMiscHintsTableID, TEXT_CHEST_GAME_PROCEED);
         } else if (Randomizer_GetSettingValue(RSK_SHUFFLE_WARP_SONGS) &&
                    (textId >= TEXT_WARP_MINUET_OF_FOREST && textId <= TEXT_WARP_PRELUDE_OF_LIGHT)) {
@@ -2591,9 +2625,9 @@ extern "C" int CustomMessage_RetrieveIfExists(PlayState* play) {
         } else if (Randomizer_GetSettingValue(RSK_FROGS_HINT) && textId == TEXT_FROGS_UNDERWATER) {
             messageEntry = OTRGlobals::Instance->gRandomizer->GetFrogsMessage(textId);
         } else if (Randomizer_GetSettingValue(RSK_SARIA_HINT)) {
-            if ((gPlayState->sceneNum == SCENE_SACRED_FOREST_MEADOW && textId == TEXT_SARIA_SFM) || (textId >= TEXT_SARIAS_SONG_TEXT_START && textId <= TEXT_SARIAS_SONG_TEXT_END)) {
-                messageEntry = OTRGlobals::Instance->gRandomizer->GetSariaMessage(textId);
-            }
+            if ((gPlayState->sceneNum == SCENE_SACRED_FOREST_MEADOW && textId == TEXT_SARIA_SFM) || (textId >= TEXT_SARIAS_SONG_FACE_TO_FACE && textId <= TEXT_SARIAS_SONG_CHANNELING_POWER)) {
+            messageEntry = OTRGlobals::Instance->gRandomizer->GetSariaMessage(textId);
+        }
         }
     }
     if (textId == TEXT_GS_NO_FREEZE || textId == TEXT_GS_FREEZE) {

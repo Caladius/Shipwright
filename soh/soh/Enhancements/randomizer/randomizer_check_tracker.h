@@ -46,7 +46,7 @@ class CheckTrackerWindow : public LUS::GuiWindow {
 void DefaultCheckData(RandomizerCheck rc);
 void Teardown();
 void UpdateAllOrdering();
-bool IsVisibleInCheckTracker(RandomizerCheckObject rcObj);
+bool IsVisibleInCheckTracker(RandomizerCheck rc);
 void InitTrackerData(bool isDebug);
 RandomizerCheckArea GetCheckArea();
 void UpdateCheck(uint32_t, RandomizerCheckTrackerData);

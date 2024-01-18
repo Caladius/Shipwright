@@ -150,7 +150,7 @@ void SetStartingItems() {
         GiveLinkRupees(9001);
     }
 
-    if (Randomizer_GetSettingValue(RSK_STARTING_MAPS_COMPASSES) == RO_DUNGEON_ITEM_LOC_STARTWITH) {
+    if (Randomizer_GetSettingValue(RSK_SHUFFLE_MAPANDCOMPASS) == RO_DUNGEON_ITEM_LOC_STARTWITH) {
         uint32_t mapBitMask = 1 << 1;
         uint32_t compassBitMask = 1 << 2;
         uint32_t startingDungeonItemsBitMask = mapBitMask | compassBitMask;
@@ -293,6 +293,14 @@ extern "C" void Randomizer_InitSaveFile() {
         Flags_SetInfTable(INFTABLE_SPOKE_TO_DARUNIA_IN_FIRE_TEMPLE); // Darunia in Fire Temple
     }
 
+    if (Randomizer_GetSettingValue(RSK_SHUFFLE_OCARINA_BUTTONS) == RO_GENERIC_OFF) {
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_A);
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_C_LEFT);
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_C_RIGHT);
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_C_UP);
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_C_DOWN);
+    }
+
     // Give Link's pocket item
     GiveLinksPocketItem();
 
@@ -357,7 +365,7 @@ extern "C" void Randomizer_InitSaveFile() {
         Flags_SetRandomizerInf(RAND_INF_TOT_MASTER_SWORD);
     }
 
-    HIGH_SCORE(HS_POE_POINTS) = 1000 - (100 * Randomizer_GetSettingValue(RSK_BIG_POE_COUNT));
+    HIGH_SCORE(HS_POE_POINTS) = 1000 - (100 * (Randomizer_GetSettingValue(RSK_BIG_POE_COUNT) + 1));
 
     if (Randomizer_GetSettingValue(RSK_SKIP_EPONA_RACE)) {
         Flags_SetEventChkInf(EVENTCHKINF_EPONA_OBTAINED);

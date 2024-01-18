@@ -6,10 +6,14 @@
 
 #include "logic.hpp"
 #include "hint_list.hpp"
-#include "keys.hpp"
 #include "fill.hpp"
+#include "../randomizerTypes.h"
+#include "../context.h"
 
 typedef bool (*ConditionFn)();
+
+// I hate this but every alternative I can think of right now is worse
+extern std::shared_ptr<Rando::Context> randoCtx;
 
 class EventAccess {
 public:
@@ -24,11 +28,12 @@ public:
     }
 
     bool ConditionsMet() const {
-        if (Settings::Logic.Is(LOGIC_NONE) || Settings::Logic.Is(LOGIC_VANILLA)) {
+        auto ctx = Rando::Context::GetInstance();
+        if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_NO_LOGIC) || ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_VANILLA)) {
             return true;
-        } else if (Settings::Logic.Is(LOGIC_GLITCHLESS)) {
+        } else if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_GLITCHLESS)) {
             return conditions_met[0]();
-        } else if (Settings::Logic.Is(LOGIC_GLITCHED)) {
+        } else if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_GLITCHED)) {
             if (conditions_met[0]()) {
                 return true;
             } else if (conditions_met[1] != NULL) {
@@ -69,7 +74,7 @@ private:
 class LocationAccess {
 public:
 
-    explicit LocationAccess(uint32_t location_, std::vector<ConditionFn> conditions_met_)
+    explicit LocationAccess(RandomizerCheck location_, std::vector<ConditionFn> conditions_met_)
         : location(location_) {
         conditions_met.resize(2);
         for (size_t i = 0; i < conditions_met_.size(); i++) {
@@ -78,11 +83,12 @@ public:
     }
 
     bool GetConditionsMet() const {
-        if (Settings::Logic.Is(LOGIC_NONE) || Settings::Logic.Is(LOGIC_VANILLA)) {
+        auto ctx = Rando::Context::GetInstance();
+        if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_NO_LOGIC) || ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_VANILLA)) {
             return true;
-        } else if (Settings::Logic.Is(LOGIC_GLITCHLESS)) {
+        } else if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_GLITCHLESS)) {
             return conditions_met[0]();
-        } else if (Settings::Logic.Is(LOGIC_GLITCHED)) {
+        } else if (ctx->GetOption(RSK_LOGIC_RULES).Is(RO_LOGIC_GLITCHED)) {
             if (conditions_met[0]()) {
                 return true;
             } else if (conditions_met[1] != NULL) {
@@ -96,39 +102,41 @@ public:
 
     bool ConditionsMet() const;
 
-    uint32_t GetLocation() const {
+    RandomizerCheck GetLocation() const {
         return location;
     }
 
-private:
-    uint32_t location;
+protected:
+    RandomizerCheck location;
     std::vector<ConditionFn> conditions_met;
 
     //Makes sure shop locations are buyable
     bool CanBuy() const;
 };
 
-class Entrance;
-enum class EntranceType;
+namespace Rando {
+    class Entrance;
+    enum class EntranceType;
+}
 
 class Area {
 public:
     Area();
-    Area(std::string regionName_, std::string scene_, uint32_t hintKey_,
+    Area(std::string regionName_, std::string scene_, RandomizerArea area,
          bool timePass_,
          std::vector<EventAccess> events_,
          std::vector<LocationAccess> locations_,
-         std::list<Entrance> exits_);
+         std::list<Rando::Entrance> exits_);
     ~Area();
 
     std::string regionName;
     std::string scene;
-    uint32_t     hintKey;
-    bool        timePass;
+    RandomizerArea area;
+    bool timePass;
     std::vector<EventAccess> events;
     std::vector<LocationAccess> locations;
-    std::list<Entrance> exits;
-    std::list<Entrance*> entrances;
+    std::list<Rando::Entrance> exits;
+    std::list<Rando::Entrance*> entrances;
     //^ The above exits are now stored in a list instead of a vector because
     //the entrance randomization algorithm plays around with pointers to these
     //entrances a lot. By putting the entrances in a list, we don't have to
@@ -143,13 +151,13 @@ public:
 
     bool UpdateEvents(SearchMode mode);
 
-    void AddExit(uint32_t parentKey, uint32_t newExitKey, ConditionFn condition);
+    void AddExit(RandomizerRegion parentKey, RandomizerRegion newExitKey, ConditionFn condition);
 
-    void RemoveExit(Entrance* exitToRemove);
+    void RemoveExit(Rando::Entrance* exitToRemove);
 
-    void SetAsPrimary(uint32_t exitToBePrimary);
+    void SetAsPrimary(RandomizerRegion exitToBePrimary);
 
-    Entrance* GetExit(uint32_t exit);
+    Rando::Entrance* GetExit(RandomizerRegion exit);
 
     bool Child() const {
       return childDay || childNight;
@@ -172,10 +180,10 @@ public:
     }
 
     //Check to see if an exit can be access as both ages at both times of day
-    bool CheckAllAccess(uint32_t exitKey);
+    bool CheckAllAccess(RandomizerRegion exitKey);
 
-    const HintText& GetHint() const {
-      return Hint(hintKey);
+    RandomizerArea GetArea() const{
+        return area;
     }
 
     //Here checks conditional access based on whether or not both ages have
@@ -218,15 +226,15 @@ public:
     }
 };
 
-extern std::array<Area, KEY_ENUM_MAX> areaTable;
+extern std::array<Area, RR_MAX> areaTable;
 extern std::vector<EventAccess> grottoEvents;
 
-bool Here(const AreaKey area, ConditionFn condition);
-bool CanPlantBean(const AreaKey area);
-bool BothAges(const AreaKey area);
-bool ChildCanAccess(const AreaKey area);
-bool AdultCanAccess(const AreaKey area);
-bool HasAccessTo(const AreaKey area);
+bool Here(const RandomizerRegion area, ConditionFn condition);
+bool CanPlantBean(const RandomizerRegion area);
+bool BothAges(const RandomizerRegion area);
+bool ChildCanAccess(const RandomizerRegion area);
+bool AdultCanAccess(const RandomizerRegion area);
+bool HasAccessTo(const RandomizerRegion area);
 
 #define DAY_NIGHT_CYCLE true
 #define NO_DAY_NIGHT_CYCLE false
@@ -240,8 +248,8 @@ namespace Areas {
 } //namespace Exits
 
 void  AreaTable_Init();
-Area* AreaTable(const uint32_t areaKey);
-std::vector<Entrance*> GetShuffleableEntrances(EntranceType type, bool onlyPrimary = true);
+Area* AreaTable(const RandomizerRegion areaKey);
+std::vector<Rando::Entrance*> GetShuffleableEntrances(Rando::EntranceType type, bool onlyPrimary = true);
 
 // Overworld
 void AreaTable_Init_LostWoods();

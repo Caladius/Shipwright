@@ -2626,13 +2626,20 @@ u16 Randomizer_Item_Give(PlayState* play, GetItemEntry giEntry) {
         GameInteractor_SetTriforceHuntPieceGiven(true);
 
         // Teleport to credits when goal is reached.
-        if (gSaveContext.triforcePiecesCollected == Randomizer_GetSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED)) {
+        if (gSaveContext.triforcePiecesCollected == (Randomizer_GetSettingValue(RSK_TRIFORCE_HUNT_PIECES_REQUIRED) + 1)) {
             gSaveContext.sohStats.itemTimestamp[TIMESTAMP_TRIFORCE_COMPLETED] = GAMEPLAYSTAT_TOTAL_TIME;
             gSaveContext.sohStats.gameComplete = 1;
             Flags_SetRandomizerInf(RAND_INF_GRANT_GANONS_BOSSKEY);
             Play_PerformSave(play);
             GameInteractor_SetTriforceHuntCreditsWarpActive(true);
         }
+
+        return Return_Item_Entry(giEntry, RG_NONE);
+    }
+
+    if (item >= RG_GOHMA_SOUL && item <= RG_GANON_SOUL) {
+        u8 index = item - RG_GOHMA_SOUL;
+        Flags_SetRandomizerInf(RAND_INF_GOHMA_SOUL + index);
 
         return Return_Item_Entry(giEntry, RG_NONE);
     }
@@ -2654,6 +2661,13 @@ u16 Randomizer_Item_Give(PlayState* play, GetItemEntry giEntry) {
         if (!CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, EQUIP_INV_SWORD_MASTER)) {
             gSaveContext.inventory.equipment |= gBitFlags[1] << gEquipShifts[EQUIP_TYPE_SWORD];
         }
+        return Return_Item_Entry(giEntry, RG_NONE);
+    }
+
+    if (item >= RG_OCARINA_A_BUTTON && item <= RG_OCARINA_C_RIGHT_BUTTON) {
+        u8 index = item - RG_OCARINA_A_BUTTON;
+        Flags_SetRandomizerInf(RAND_INF_HAS_OCARINA_A + index);
+
         return Return_Item_Entry(giEntry, RG_NONE);
     }
 
