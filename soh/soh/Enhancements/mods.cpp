@@ -1223,6 +1223,25 @@ void RegisterToTMedallions() {
     });
 }
 
+void RegisterBlastMask() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        if (!CVarGetInteger("gBlastmask", 0)) {
+            return;
+        }
+        Player* player = GET_PLAYER(gPlayState);
+        u8 currentMask = Player_GetMask(gPlayState);
+        Input* input = &gPlayState->state.input[0];
+        if (currentMask == PLAYER_MASK_SPOOKY) {
+            if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                GameInteractor::RawAction::SpawnActor(ACTOR_EN_BOM, 1);
+            }
+            gPlayState->interfaceCtx.restrictions.bButton = 1;
+        } else {
+            gPlayState->interfaceCtx.restrictions.bButton = 0;
+        }
+    });
+}
+
 void InitMods() {
     RegisterTTS();
     RegisterInfiniteMoney();
@@ -1256,4 +1275,5 @@ void InitMods() {
     RegisterRandomizedEnemySizes();
     RegisterToTMedallions();
     NameTag_RegisterHooks();
+    RegisterBlastMask();
 }
