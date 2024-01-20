@@ -1253,6 +1253,12 @@ void DrawEnhancementsMenu() {
                     UIWidgets::PaddedEnhancementCheckbox("Death Traps", "gAddTraps.Kill", true, false);
                     UIWidgets::PaddedEnhancementCheckbox("Teleport Traps", "gAddTraps.Tele", true, false);
 
+                    UIWidgets::PaddedSeparator();
+                    ImGui::Text("Nightmare Traps:");
+                    UIWidgets::Spacer(0);
+                    UIWidgets::PaddedEnhancementCheckbox("Redead Traps", "gAddTraps.Redead", true, false);
+                    UIWidgets::PaddedEnhancementCheckbox("Mirror Traps", "gAddTraps.Mirror", true, false);
+
                     ImGui::EndMenu();
                 }
             }
