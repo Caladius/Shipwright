@@ -27,6 +27,8 @@
 #include "objects/object_link_boy/object_link_boy.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.h"
+
 extern "C" {
 #include <z64.h>
 #include "align_asset_macro.h"
@@ -1394,6 +1396,31 @@ void RegisterPauseMenuHooks() {
     });
 }
 
+void RegisterAdultBotW() {
+    static int spawnTimer = -1;
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) {
+        if (gPlayState == NULL) {
+            return;
+        }
+        if (gPlayState->sceneNum == SCENE_BOTTOM_OF_THE_WELL) {
+            spawnTimer = 60;
+        }
+    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayerUpdate>([]() {
+        if (gPlayState == NULL) {
+            return;
+        }
+        if (spawnTimer == 0) {
+            //GameInteractor::RawAction::SpawnActor(ACTOR_OBJ_SYOKUDAI, 666);
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, 58.345, 240, 1158.064, 0, 0, 0, 0, false);
+            spawnTimer = -1;
+        } else if (spawnTimer > 0) {
+            spawnTimer--;
+        }
+    });
+    
+}
+
 void InitMods() {
     RegisterTTS();
     RegisterInfiniteMoney();
@@ -1433,4 +1460,5 @@ void InitMods() {
     RegisterPatchHandHandler();
     RegisterHurtContainerModeHandler();
     RegisterPauseMenuHooks();
+    RegisterAdultBotW();
 }
