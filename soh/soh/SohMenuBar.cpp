@@ -37,6 +37,8 @@
 #include "Enhancements/randomizer/randomizer_settings_window.h"
 #include "Enhancements/resolution-editor/ResolutionEditor.h"
 
+#include "Enhancements/pick-three/PickThreeWindow.h"
+
 extern bool isBetaQuestEnabled;
 
 extern "C" PlayState* gPlayState;
@@ -551,6 +553,8 @@ void DrawSettingsMenu() {
 extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
 extern std::shared_ptr<CosmeticsEditorWindow> mCosmeticsEditorWindow;
 extern std::shared_ptr<GameplayStatsWindow> mGameplayStatsWindow;
+
+extern std::shared_ptr<PickThreeWindow> mPickThreeWindow;
 
 void DrawEnhancementsMenu() {
     if (ImGui::BeginMenu("Enhancements"))
@@ -1419,6 +1423,11 @@ void DrawEnhancementsMenu() {
                 "- Each Heart Container or full Heart Piece reduces Links hearts by 1.\n"
                 "- Can be enabled retroactively after a File has already started.");
 
+            if (mPickThreeWindow) {
+                if (ImGui::Button(GetWindowButtonText("Pick Three Game Mode", CVarGetInteger(CVAR_WINDOW("PickThree"), 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                mPickThreeWindow->ToggleVisibility();
+                }
+            }
             ImGui::EndMenu();
         }
 
