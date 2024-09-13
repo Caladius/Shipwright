@@ -27,6 +27,7 @@ void GameInteractor_ExecuteOnOcarinaSongAction();
 void GameInteractor_ExecuteOnShopSlotChangeHooks(uint8_t cursorIndex, int16_t price);
 void GameInteractor_ExecuteOnPlayDestroy();
 void GameInteractor_ExecuteOnPlayDrawEnd();
+bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt);
 
 // MARK: -  Save Files
 void GameInteractor_ExecuteOnSaveFile(int32_t fileNum);
@@ -62,6 +63,9 @@ void GameInteractor_RegisterOnAssetAltChange(void (*fn)(void));
 
 //Mark: - Pause Menu
 void GameInteractor_ExecuteOnKaleidoUpdate();
+
+//Mark - Randomizer options spawning EnItem00 actors
+void EnItem00_DrawRandomizedItem(EnItem00* enItem00, PlayState* play);
 
 #ifdef __cplusplus
 }
