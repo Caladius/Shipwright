@@ -6,13 +6,16 @@
 
 namespace Rando {
 DungeonInfo::DungeonInfo(std::string name_, const RandomizerHintTextKey hintKey_, const RandomizerGet map_,
-    const RandomizerGet compass_, const RandomizerGet smallKey_, const RandomizerGet keyRing_,
-    const RandomizerGet bossKey_, RandomizerArea area_, const uint8_t vanillaKeyCount_, const uint8_t mqKeyCount_,
-    const RandomizerSettingKey mqSetting_,
+                         const RandomizerGet compass_, const RandomizerGet smallKey_, const RandomizerGet keyRing_,
+                         const RandomizerGet bossKey_, std::unordered_set<RandomizerGet> vanillaSilverRupees_,
+                         std::unordered_set<RandomizerGet> mqSilverRupees_, RandomizerArea area_,
+                         const uint8_t vanillaKeyCount_, const uint8_t mqKeyCount_,
+                         const RandomizerSettingKey mqSetting_,
     std::vector<RandomizerCheck> vanillaLocations_, std::vector<RandomizerCheck> mqLocations_,
-    std::vector<RandomizerCheck> sharedLocations_, std::vector<RandomizerCheck> bossRoomLocations_)
+                         std::vector<RandomizerCheck> sharedLocations_, std::vector<RandomizerCheck> bossRoomLocations_)
     : name(std::move(name_)), hintKey(hintKey_), map(map_), compass(compass_), smallKey(smallKey_), keyRing(keyRing_),
-      bossKey(bossKey_), area(area_), vanillaKeyCount(vanillaKeyCount_), mqKeyCount(mqKeyCount_),
+      bossKey(bossKey_), vanillaSilverRupees(std::move(vanillaSilverRupees_)), mqSilverRupees(std::move(mqSilverRupees_)),
+      area(area_), vanillaKeyCount(vanillaKeyCount_), mqKeyCount(mqKeyCount_),
       mqSetting(mqSetting_),
       vanillaLocations(std::move(vanillaLocations_)), mqLocations(std::move(mqLocations_)),
       sharedLocations(std::move(sharedLocations_)), bossRoomLocations(std::move(bossRoomLocations_)) {
@@ -51,6 +54,20 @@ bool DungeonInfo::HasKeyRing() const {
 
 bool DungeonInfo::IsVanilla() const {
     return !masterQuest;
+}
+
+bool DungeonInfo::ContainsSilverRupee(RandomizerGet rg) const {
+    if (masterQuest) {
+        return mqSilverRupees.contains(rg);
+    }
+    return vanillaSilverRupees.contains(rg);
+}
+
+bool DungeonInfo::HasSilverRupees() const {
+    if (masterQuest) {
+        return !mqSilverRupees.empty();
+    }
+    return !vanillaSilverRupees.empty();
 }
 
 uint8_t DungeonInfo::GetSmallKeyCount() const {
@@ -162,7 +179,7 @@ std::vector<RandomizerCheck> DungeonInfo::GetEveryLocation() const {
 
 Dungeons::Dungeons() {
     dungeonList[DEKU_TREE] =
-        DungeonInfo("Deku Tree", RHT_DEKU_TREE, RG_DEKU_TREE_MAP, RG_DEKU_TREE_COMPASS, RG_NONE, RG_NONE, RG_NONE, RA_DEKU_TREE, 0, 0, RSK_MQ_DEKU_TREE,
+        DungeonInfo("Deku Tree", RHT_DEKU_TREE, RG_DEKU_TREE_MAP, RG_DEKU_TREE_COMPASS, RG_NONE, RG_NONE, RG_NONE, {}, {}, RA_DEKU_TREE, 0, 0, RSK_MQ_DEKU_TREE,
                     {
                         // Vanilla Locations
                         RC_DEKU_TREE_MAP_CHEST,
@@ -210,7 +227,7 @@ Dungeons::Dungeons() {
                         RC_QUEEN_GOHMA,
                     });
     dungeonList[DODONGOS_CAVERN] = DungeonInfo("Dodongo's Cavern", RHT_DODONGOS_CAVERN, RG_DODONGOS_CAVERN_MAP,
-                                               RG_DODONGOS_CAVERN_COMPASS, RG_NONE, RG_NONE, RG_NONE, RA_DODONGOS_CAVERN, 0, 0, RSK_MQ_DODONGOS_CAVERN,
+                                               RG_DODONGOS_CAVERN_COMPASS, RG_NONE, RG_NONE, RG_NONE, {}, {RG_DODONGOS_CAVERN_MQ_SILVER_RUPEE}, RA_DODONGOS_CAVERN, 0, 0, RSK_MQ_DODONGOS_CAVERN,
                                                {
                                                    // Vanilla Locations
                                                    RC_DODONGOS_CAVERN_MAP_CHEST,
@@ -317,6 +334,11 @@ Dungeons::Dungeons() {
                                                    RC_DODONGOS_CAVERN_MQ_TORCH_PUZZLE_ROOM_HEART,
                                                    RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY,
                                                    RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY_BIG,
+                                                   RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_1,
+                                                   RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_2,
+                                                   RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_3,
+                                                   RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_4,
+                                                   RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_5,
                                                },
                                                {},
                                                {
@@ -326,7 +348,7 @@ Dungeons::Dungeons() {
                                                    RC_KING_DODONGO,
                                                });
     dungeonList[JABU_JABUS_BELLY] = DungeonInfo("Jabu Jabu's Belly", RHT_JABU_JABUS_BELLY, RG_JABU_JABUS_BELLY_MAP,
-                                                RG_JABU_JABUS_BELLY_COMPASS, RG_NONE, RG_NONE, RG_NONE, RA_JABU_JABUS_BELLY, 0, 0, RSK_MQ_JABU_JABU,
+                                                RG_JABU_JABUS_BELLY_COMPASS, RG_NONE, RG_NONE, RG_NONE, {}, {}, RA_JABU_JABUS_BELLY, 0, 0, RSK_MQ_JABU_JABU,
                                                 {
                                                     // Vanilla Locations
                                                     RC_JABU_JABUS_BELLY_MAP_CHEST,
@@ -402,7 +424,7 @@ Dungeons::Dungeons() {
                                                 });
     dungeonList[FOREST_TEMPLE] =
         DungeonInfo("Forest Temple", RHT_FOREST_TEMPLE, RG_FOREST_TEMPLE_MAP, RG_FOREST_TEMPLE_COMPASS,
-                    RG_FOREST_TEMPLE_SMALL_KEY, RG_FOREST_TEMPLE_KEY_RING, RG_FOREST_TEMPLE_BOSS_KEY, RA_FOREST_TEMPLE, 5, 6, RSK_MQ_FOREST_TEMPLE,
+                    RG_FOREST_TEMPLE_SMALL_KEY, RG_FOREST_TEMPLE_KEY_RING, RG_FOREST_TEMPLE_BOSS_KEY, {}, {}, RA_FOREST_TEMPLE, 5, 6, RSK_MQ_FOREST_TEMPLE,
                     {
                         // Vanilla Locations
                         RC_FOREST_TEMPLE_FIRST_ROOM_CHEST,
@@ -506,7 +528,7 @@ Dungeons::Dungeons() {
                     });
     dungeonList[FIRE_TEMPLE] =
         DungeonInfo("Fire Temple", RHT_FIRE_TEMPLE, RG_FIRE_TEMPLE_MAP, RG_FIRE_TEMPLE_COMPASS,
-                    RG_FIRE_TEMPLE_SMALL_KEY, RG_FIRE_TEMPLE_KEY_RING, RG_FIRE_TEMPLE_BOSS_KEY, RA_FIRE_TEMPLE, 8, 5, RSK_MQ_FIRE_TEMPLE,
+                    RG_FIRE_TEMPLE_SMALL_KEY, RG_FIRE_TEMPLE_KEY_RING, RG_FIRE_TEMPLE_BOSS_KEY, {}, {}, RA_FIRE_TEMPLE, 8, 5, RSK_MQ_FIRE_TEMPLE,
                     {
                         // Vanilla Locations
                         RC_FIRE_TEMPLE_NEAR_BOSS_CHEST,
@@ -618,7 +640,7 @@ Dungeons::Dungeons() {
                     });
     dungeonList[WATER_TEMPLE] =
         DungeonInfo("Water Temple", RHT_WATER_TEMPLE, RG_WATER_TEMPLE_MAP, RG_WATER_TEMPLE_COMPASS,
-                    RG_WATER_TEMPLE_SMALL_KEY, RG_WATER_TEMPLE_KEY_RING, RG_WATER_TEMPLE_BOSS_KEY, RA_WATER_TEMPLE, 6, 2, RSK_MQ_WATER_TEMPLE,
+                    RG_WATER_TEMPLE_SMALL_KEY, RG_WATER_TEMPLE_KEY_RING, RG_WATER_TEMPLE_BOSS_KEY, {}, {}, RA_WATER_TEMPLE, 6, 2, RSK_MQ_WATER_TEMPLE,
                     {
                         // Vanilla Locations
                         RC_WATER_TEMPLE_MAP_CHEST,
@@ -724,7 +746,13 @@ Dungeons::Dungeons() {
                     });
     dungeonList[SPIRIT_TEMPLE] =
         DungeonInfo("Spirit Temple", RHT_SPIRIT_TEMPLE, RG_SPIRIT_TEMPLE_MAP, RG_SPIRIT_TEMPLE_COMPASS,
-                    RG_SPIRIT_TEMPLE_SMALL_KEY, RG_SPIRIT_TEMPLE_KEY_RING, RG_SPIRIT_TEMPLE_BOSS_KEY, RA_SPIRIT_TEMPLE, 5, 7, RSK_MQ_SPIRIT_TEMPLE,
+                    RG_SPIRIT_TEMPLE_SMALL_KEY, RG_SPIRIT_TEMPLE_KEY_RING, RG_SPIRIT_TEMPLE_BOSS_KEY, {
+                        RG_SPIRIT_BEAMOS_SILVER_RUPEE,
+                        RG_SPIRIT_BOULDER_SILVER_RUPEE,
+                        RG_SPIRIT_GATE_SILVER_RUPEE,
+                    }, {
+                        RG_SPIRIT_MQ_LOBBY_SILVER_RUPEE,
+                    }, RA_SPIRIT_TEMPLE, 5, 7, RSK_MQ_SPIRIT_TEMPLE,
                     {
                         // Vanilla Locations
                         RC_SPIRIT_TEMPLE_CHILD_BRIDGE_CHEST,
@@ -771,6 +799,21 @@ Dungeons::Dungeons() {
                         RC_SPIRIT_TEMPLE_ADULT_CLIMB_RIGHT_HEART,
                         RC_SPIRIT_TEMPLE_BOULDER_ROOM_SUN_FAIRY,
                         RC_SPIRIT_TEMPLE_ARMOS_ROOM_SUN_FAIRY,
+                        RC_SPIRIT_GATE_SILVER_RUPEE_1,
+                        RC_SPIRIT_GATE_SILVER_RUPEE_2,
+                        RC_SPIRIT_GATE_SILVER_RUPEE_3,
+                        RC_SPIRIT_GATE_SILVER_RUPEE_4,
+                        RC_SPIRIT_GATE_SILVER_RUPEE_5,
+                        RC_SPIRIT_BEAMOS_SILVER_RUPEE_1,
+                        RC_SPIRIT_BEAMOS_SILVER_RUPEE_2,
+                        RC_SPIRIT_BEAMOS_SILVER_RUPEE_3,
+                        RC_SPIRIT_BEAMOS_SILVER_RUPEE_4,
+                        RC_SPIRIT_BEAMOS_SILVER_RUPEE_5,
+                        RC_SPIRIT_BOULDER_SILVER_RUPEE_1,
+                        RC_SPIRIT_BOULDER_SILVER_RUPEE_2,
+                        RC_SPIRIT_BOULDER_SILVER_RUPEE_3,
+                        RC_SPIRIT_BOULDER_SILVER_RUPEE_4,
+                        RC_SPIRIT_BOULDER_SILVER_RUPEE_5,
                     },
                     {
                         // MQ Locations
@@ -833,6 +876,11 @@ Dungeons::Dungeons() {
                         RC_SPIRIT_TEMPLE_MQ_CHILD_LEFT_HEART,
                         RC_SPIRIT_TEMPLE_MQ_CHILD_RIGHT_HEART,
                         RC_SPIRIT_TEMPLE_MQ_DINALFOS_ROOM_SUN_FAIRY,
+                        RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_1,
+                        RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_2,
+                        RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_3,
+                        RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_4,
+                        RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_5,
                     },
                     {
                         // Shared Locations
@@ -846,7 +894,16 @@ Dungeons::Dungeons() {
                     });
     dungeonList[SHADOW_TEMPLE] =
         DungeonInfo("Shadow Temple", RHT_SHADOW_TEMPLE, RG_SHADOW_TEMPLE_MAP, RG_SHADOW_TEMPLE_COMPASS,
-                    RG_SHADOW_TEMPLE_SMALL_KEY, RG_SHADOW_TEMPLE_KEY_RING, RG_SHADOW_TEMPLE_BOSS_KEY, RA_SHADOW_TEMPLE, 5, 6, RSK_MQ_SHADOW_TEMPLE,
+                    RG_SHADOW_TEMPLE_SMALL_KEY, RG_SHADOW_TEMPLE_KEY_RING, RG_SHADOW_TEMPLE_BOSS_KEY, {
+                        RG_SHADOW_SCYTHE_SILVER_RUPEE,
+                        RG_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE,
+                        RG_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE,
+                    }, {
+                        RG_SHADOW_MQ_SCYTHE_SILVER_RUPEE,
+                        RG_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE,
+                        RG_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE,
+                        RG_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE,
+                    }, RA_SHADOW_TEMPLE, 5, 6, RSK_MQ_SHADOW_TEMPLE,
                     {
                         // Vanilla Locations
                         RC_SHADOW_TEMPLE_MAP_CHEST,
@@ -904,6 +961,21 @@ Dungeons::Dungeons() {
                         RC_SHADOW_TEMPLE_BEAMOS_STORM_FAIRY,
                         RC_SHADOW_TEMPLE_PIT_STORM_FAIRY,
                         RC_SHADOW_TEMPLE_WIND_HINT_SUN_FAIRY,
+                        RC_SHADOW_SCYTHE_SILVER_RUPEE_1,
+                        RC_SHADOW_SCYTHE_SILVER_RUPEE_2,
+                        RC_SHADOW_SCYTHE_SILVER_RUPEE_3,
+                        RC_SHADOW_SCYTHE_SILVER_RUPEE_4,
+                        RC_SHADOW_SCYTHE_SILVER_RUPEE_5,
+                        RC_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_1,
+                        RC_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_2,
+                        RC_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_3,
+                        RC_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_4,
+                        RC_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_5,
+                        RC_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE_1,
+                        RC_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE_2,
+                        RC_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE_3,
+                        RC_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE_4,
+                        RC_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE_5,
                     },
                     {
                         // MQ Locations
@@ -961,6 +1033,36 @@ Dungeons::Dungeons() {
                         RC_SHADOW_TEMPLE_MQ_BEAMOS_STORM_FAIRY,
                         RC_SHADOW_TEMPLE_MQ_PIT_STORM_FAIRY,
                         RC_SHADOW_TEMPLE_MQ_WIND_HINT_SUN_FAIRY,
+                        RC_SHADOW_MQ_SCYTHE_SILVER_RUPEE_1,
+                        RC_SHADOW_MQ_SCYTHE_SILVER_RUPEE_2,
+                        RC_SHADOW_MQ_SCYTHE_SILVER_RUPEE_3,
+                        RC_SHADOW_MQ_SCYTHE_SILVER_RUPEE_4,
+                        RC_SHADOW_MQ_SCYTHE_SILVER_RUPEE_5,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_1,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_2,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_3,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_4,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_5,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_6,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_7,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_8,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_9,
+                        RC_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE_10,
+                        RC_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_1,
+                        RC_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_2,
+                        RC_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_3,
+                        RC_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_4,
+                        RC_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE_5,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_1,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_2,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_3,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_4,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_5,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_6,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_7,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_8,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_9,
+                        RC_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE_10,
                     },
                     {},
                     {
@@ -970,7 +1072,9 @@ Dungeons::Dungeons() {
                     });
     dungeonList[BOTTOM_OF_THE_WELL] = DungeonInfo(
         "Bottom of the Well", RHT_BOTTOM_OF_THE_WELL, RG_BOTTOM_OF_THE_WELL_MAP, RG_BOTTOM_OF_THE_WELL_COMPASS,
-        RG_BOTTOM_OF_THE_WELL_SMALL_KEY, RG_BOTTOM_OF_THE_WELL_KEY_RING, RG_NONE, RA_BOTTOM_OF_THE_WELL, 3, 2, RSK_MQ_BOTTOM_OF_THE_WELL,
+        RG_BOTTOM_OF_THE_WELL_SMALL_KEY, RG_BOTTOM_OF_THE_WELL_KEY_RING, RG_NONE, {
+            RG_BOTTOM_OF_THE_WELL_SILVER_RUPEE,
+        }, {}, RA_BOTTOM_OF_THE_WELL, 3, 2, RSK_MQ_BOTTOM_OF_THE_WELL,
         {
             // Vanilla Locations
             RC_BOTTOM_OF_THE_WELL_FRONT_LEFT_FAKE_WALL_CHEST,
@@ -1019,6 +1123,11 @@ Dungeons::Dungeons() {
             RC_BOTTOM_OF_THE_WELL_COFFIN_ROOM_FRONT_LEFT_HEART,
             RC_BOTTOM_OF_THE_WELL_COFFIN_ROOM_MIDDLE_RIGHT_HEART,
             RC_BOTTOM_OF_THE_WELL_BASEMENT_SUN_FAIRY,
+            RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_1,
+            RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_2,
+            RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_3,
+            RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_4,
+            RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_5,
         },
         {
             // MQ Locations
@@ -1051,7 +1160,10 @@ Dungeons::Dungeons() {
         },
         {}, {});
     dungeonList[ICE_CAVERN] = DungeonInfo("Ice Cavern", RHT_ICE_CAVERN, RG_ICE_CAVERN_MAP, RG_ICE_CAVERN_COMPASS,
-                                          RG_NONE, RG_NONE, RG_NONE, RA_ICE_CAVERN, 0, 0, RSK_MQ_ICE_CAVERN,
+                                          RG_NONE, RG_NONE, RG_NONE,{
+                                            RG_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE,
+                                            RG_ICE_CAVERN_SLIDING_SILVER_RUPEE,
+                                          }, {}, RA_ICE_CAVERN, 0, 0, RSK_MQ_ICE_CAVERN,
                                           {
                                               // Vanilla Locations
                                               RC_ICE_CAVERN_MAP_CHEST,
@@ -1079,6 +1191,16 @@ Dungeons::Dungeons() {
                                               RC_ICE_CAVERN_SLIDING_BLOCK_RUPEE_2,
                                               RC_ICE_CAVERN_SLIDING_BLOCK_RUPEE_3,
                                               RC_ICE_CAVERN_ENTRANCE_STORMS_FAIRY,
+                                              RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_1,
+                                              RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_2,
+                                              RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_3,
+                                              RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_4,
+                                              RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_5,
+                                              RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_1,
+                                              RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_2,
+                                              RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_3,
+                                              RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_4,
+                                              RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_5,
                                           },
                                           {
                                               // MQ Locations
@@ -1110,7 +1232,15 @@ Dungeons::Dungeons() {
                                           {});
     dungeonList[GERUDO_TRAINING_GROUNDS] =
         DungeonInfo("Gerudo Training Grounds", RHT_GERUDO_TRAINING_GROUND, RG_NONE, RG_NONE,
-                    RG_GERUDO_TRAINING_GROUNDS_SMALL_KEY, RG_GERUDO_TRAINING_GROUNDS_KEY_RING, RG_NONE, RA_GERUDO_TRAINING_GROUND, 9, 3, RSK_MQ_GTG,
+                    RG_GERUDO_TRAINING_GROUNDS_SMALL_KEY, RG_GERUDO_TRAINING_GROUNDS_KEY_RING, RG_NONE, {
+                        RG_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE,
+                        RG_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE,
+                        RG_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE,
+                    }, {
+                        RG_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE,
+                        RG_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE,
+                        RG_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE,
+                    }, RA_GERUDO_TRAINING_GROUND, 9, 3, RSK_MQ_GTG,
                     {
                         // Vanilla Locations
                         RC_GERUDO_TRAINING_GROUND_LOBBY_LEFT_CHEST,
@@ -1138,6 +1268,21 @@ Dungeons::Dungeons() {
                         RC_GERUDO_TRAINING_GROUND_BEAMOS_SOUTH_HEART,
                         RC_GERUDO_TRAINING_GROUND_BEAMOS_EAST_HEART,
                         RC_GERUDO_TRAINING_GROUND_ENTRANCE_STORMS_FAIRY,
+                        RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_3,
+                        RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_4,
+                        RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_5,
+                        RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_3,
+                        RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_4,
+                        RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_5,
+                        RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_3,
+                        RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_4,
+                        RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_5,
                     },
                     {
                         // MQ Locations
@@ -1158,20 +1303,58 @@ Dungeons::Dungeons() {
                         RC_GERUDO_TRAINING_GROUND_MQ_HIDDEN_CEILING_CHEST,
                         RC_GERUDO_TRAINING_GROUND_MQ_UNDERWATER_SILVER_RUPEE_CHEST,
                         RC_GERUDO_TRAINING_GROUND_MQ_HEAVY_BLOCK_CHEST,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_3,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_4,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_5,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_3,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_4,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_5,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_6,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_1,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_2,
+                        RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_3,
                     },
                     {}, {});
     dungeonList[GANONS_CASTLE] =
         DungeonInfo("Ganon's Castle", RHT_GANONS_CASTLE, RG_NONE, RG_NONE, RG_GANONS_CASTLE_SMALL_KEY,
-                    RG_GANONS_CASTLE_KEY_RING, RG_GANONS_CASTLE_BOSS_KEY, RA_GANONS_CASTLE, 2, 3, RSK_MQ_GANONS_CASTLE,
+                    RG_GANONS_CASTLE_KEY_RING, RG_GANONS_CASTLE_BOSS_KEY, {
+                        RG_FOREST_TRIAL_SILVER_RUPEE,
+                        RG_FIRE_TRIAL_SILVER_RUPEE,
+                        RG_SPIRIT_TRIAL_SILVER_RUPEE,
+                        RG_LIGHT_TRIAL_SILVER_RUPEE,
+                    }, {
+                        RG_FIRE_TRIAL_MQ_SILVER_RUPEE,
+                        RG_WATER_TRIAL_MQ_SILVER_RUPEE,
+                        RG_SHADOW_TRIAL_MQ_SILVER_RUPEE,
+                    }, RA_GANONS_CASTLE, 2, 3, RSK_MQ_GANONS_CASTLE,
                     {
                         // Vanilla Locations
                         RC_GANONS_CASTLE_FOREST_TRIAL_CHEST,
+                        RC_FOREST_TRIAL_SILVER_RUPEE_1,
+                        RC_FOREST_TRIAL_SILVER_RUPEE_2,
+                        RC_FOREST_TRIAL_SILVER_RUPEE_3,
+                        RC_FOREST_TRIAL_SILVER_RUPEE_4,
+                        RC_FOREST_TRIAL_SILVER_RUPEE_5,
+                        RC_FIRE_TRIAL_SILVER_RUPEE_1,
+                        RC_FIRE_TRIAL_SILVER_RUPEE_2,
+                        RC_FIRE_TRIAL_SILVER_RUPEE_3,
+                        RC_FIRE_TRIAL_SILVER_RUPEE_4,
+                        RC_FIRE_TRIAL_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_WATER_TRIAL_LEFT_CHEST,
                         RC_GANONS_CASTLE_WATER_TRIAL_RIGHT_CHEST,
                         RC_GANONS_CASTLE_SHADOW_TRIAL_FRONT_CHEST,
                         RC_GANONS_CASTLE_SHADOW_TRIAL_GOLDEN_GAUNTLETS_CHEST,
                         RC_GANONS_CASTLE_SPIRIT_TRIAL_CRYSTAL_SWITCH_CHEST,
                         RC_GANONS_CASTLE_SPIRIT_TRIAL_INVISIBLE_CHEST,
+                        RC_SPIRIT_TRIAL_SILVER_RUPEE_1,
+                        RC_SPIRIT_TRIAL_SILVER_RUPEE_2,
+                        RC_SPIRIT_TRIAL_SILVER_RUPEE_3,
+                        RC_SPIRIT_TRIAL_SILVER_RUPEE_4,
+                        RC_SPIRIT_TRIAL_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_LIGHT_TRIAL_FIRST_LEFT_CHEST,
                         RC_GANONS_CASTLE_LIGHT_TRIAL_SECOND_LEFT_CHEST,
                         RC_GANONS_CASTLE_LIGHT_TRIAL_THIRD_LEFT_CHEST,
@@ -1180,6 +1363,11 @@ Dungeons::Dungeons() {
                         RC_GANONS_CASTLE_LIGHT_TRIAL_THIRD_RIGHT_CHEST,
                         RC_GANONS_CASTLE_LIGHT_TRIAL_INVISIBLE_ENEMIES_CHEST,
                         RC_GANONS_CASTLE_LIGHT_TRIAL_LULLABY_CHEST,
+                        RC_LIGHT_TRIAL_SILVER_RUPEE_1,
+                        RC_LIGHT_TRIAL_SILVER_RUPEE_2,
+                        RC_LIGHT_TRIAL_SILVER_RUPEE_3,
+                        RC_LIGHT_TRIAL_SILVER_RUPEE_4,
+                        RC_LIGHT_TRIAL_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_DEKU_SCRUB_LEFT,
                         RC_GANONS_CASTLE_DEKU_SCRUB_CENTER_LEFT,
                         RC_GANONS_CASTLE_DEKU_SCRUB_CENTER_RIGHT,
@@ -1220,11 +1408,26 @@ Dungeons::Dungeons() {
                     {
                         // MQ Locations
                         RC_GANONS_CASTLE_MQ_WATER_TRIAL_CHEST,
+                        RC_WATER_TRIAL_MQ_SILVER_RUPEE_1,
+                        RC_WATER_TRIAL_MQ_SILVER_RUPEE_2,
+                        RC_WATER_TRIAL_MQ_SILVER_RUPEE_3,
+                        RC_WATER_TRIAL_MQ_SILVER_RUPEE_4,
+                        RC_WATER_TRIAL_MQ_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_MQ_FOREST_TRIAL_EYE_SWITCH_CHEST,
+                        RC_FIRE_TRIAL_MQ_SILVER_RUPEE_1,
+                        RC_FIRE_TRIAL_MQ_SILVER_RUPEE_2,
+                        RC_FIRE_TRIAL_MQ_SILVER_RUPEE_3,
+                        RC_FIRE_TRIAL_MQ_SILVER_RUPEE_4,
+                        RC_FIRE_TRIAL_MQ_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_MQ_FOREST_TRIAL_FROZEN_EYE_SWITCH_CHEST,
                         RC_GANONS_CASTLE_MQ_LIGHT_TRIAL_LULLABY_CHEST,
                         RC_GANONS_CASTLE_MQ_SHADOW_TRIAL_BOMB_FLOWER_CHEST,
                         RC_GANONS_CASTLE_MQ_SHADOW_TRIAL_EYE_SWITCH_CHEST,
+                        RC_SHADOW_TRIAL_MQ_SILVER_RUPEE_1,
+                        RC_SHADOW_TRIAL_MQ_SILVER_RUPEE_2,
+                        RC_SHADOW_TRIAL_MQ_SILVER_RUPEE_3,
+                        RC_SHADOW_TRIAL_MQ_SILVER_RUPEE_4,
+                        RC_SHADOW_TRIAL_MQ_SILVER_RUPEE_5,
                         RC_GANONS_CASTLE_MQ_SPIRIT_TRIAL_GOLDEN_GAUNTLETS_CHEST,
                         RC_GANONS_CASTLE_MQ_SPIRIT_TRIAL_SUN_BACK_RIGHT_CHEST,
                         RC_GANONS_CASTLE_MQ_SPIRIT_TRIAL_SUN_BACK_LEFT_CHEST,

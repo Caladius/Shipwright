@@ -1300,6 +1300,12 @@ hintTextTable[RHT_FIRE_TEMPLE_NEAR_BOSS_CHEST] = HintText(CustomMessage("They sa
                                                                               /*french*/ "!!!", {QM_RED, QM_GREEN}));
 
 
+  //TODO: Translate
+  hintTextTable[RHT_SPIRIT_GATE_SILVER_RUPEE] = HintText(CustomMessage("a #gate# in the Spirit Temple guards", {QM_RED}));
+  hintTextTable[RHT_SPIRIT_BEAMOS_SILVER_RUPEE] = HintText(CustomMessage("#Beamos and blocks# in the Spirit Temple guard", {QM_RED}));
+  hintTextTable[RHT_SPIRIT_BOULDER_SILVER_RUPEE] = HintText(CustomMessage("#rolling rocks# in the Spirit Temple guard", {QM_RED}));
+  //TODO: End Translation
+
   /*--------------------------
   |      SHADOW TEMPLE       |
   ---------------------------*/
@@ -1542,6 +1548,11 @@ hintTextTable[RHT_SHADOW_TEMPLE_MAP_CHEST] = HintText(CustomMessage("They say th
                                                                    /*german*/ "Man erzählt sich, daß eine #hängende Spinne# #[[1]]# bewache.",
                                                                    /*french*/ "Selon moi, une #Skulltula près du repère du Temple de l'Ombre# a #[[1]]#.", {QM_RED, QM_GREEN}));
                                                                 // /*spanish*/ Según dicen, una #Skulltula flotante# del Templo de las Sombras otorga #[[1]]#.
+    //TODO: Translate
+  hintTextTable[RHT_SHADOW_SPINNING_SCYTHE_SILVER_RUPEE] = HintText(CustomMessage("a #spinning scythe# guards", {QM_RED}));
+  hintTextTable[RHT_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE] = HintText(CustomMessage("a #Beamos and Spike Trap# in the Shadow Temple guard", {QM_RED}));
+  hintTextTable[RHT_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE] = HintText(CustomMessage("#invisible spikes# guard", {QM_RED}));
+  // TODO: End Translation
 
     hintTextTable[RHT_POT_SHADOW_TEMPLE] = HintText(CustomMessage("They say that a #pot in Shadow Temple# contains #[[1]]#.",
                                                        /*german*/ "",
@@ -1706,6 +1717,9 @@ hintTextTable[RHT_SHADOW_TEMPLE_MAP_CHEST] = HintText(CustomMessage("They say th
                                                                        /*french*/ "!!!.", {QM_RED, QM_GREEN}));
 
 
+   hintTextTable[RHT_BOTTOM_OF_THE_WELL_BASEMENT_SILVER_RUPEE] = HintText(CustomMessage("#Redeads in a well# guard", {QM_RED}));
+
+
   /*--------------------------
   |        ICE CAVERN        |
   ---------------------------*/
@@ -1795,6 +1809,9 @@ hintTextTable[RHT_SHADOW_TEMPLE_MAP_CHEST] = HintText(CustomMessage("They say th
                                                               /*german*/ "!!!",
                                                               /*french*/ "!!!", {QM_RED, QM_GREEN}));
                                                            // /*spanish*/ Según dicen, una #Skulltula tras un ardiente hielo# otorga #[[1]]#.
+
+   // TODO: Translate
+  hintTextTable[RHT_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE] = HintText(CustomMessage("#spinning ice# guards", {QM_RED}));
 
   /*--------------------------
   | GERUDO TRAINING GROUNDS  |
@@ -1981,6 +1998,12 @@ hintTextTable[RHT_SHADOW_TEMPLE_MAP_CHEST] = HintText(CustomMessage("They say th
     hintTextTable[RHT_GERUDO_TRAINING_GROUNDS_HEART] = HintText(CustomMessage("They say that a watching a #trial with Dinalfos# is #[[1]]#.",
                                                                    /*german*/ "",
                                                                    /*french*/ "", {QM_RED, QM_GREEN}));
+
+   // TODO: Translate
+  hintTextTable[RHT_GERUDO_TRAINING_GROUND_BOULDER_SILVER_RUPEE] = HintText(CustomMessage("a #boulder maze# in the Gerudo Training Grounds guards", {QM_RED}));
+  hintTextTable[RHT_GERUDO_TRAINING_GROUND_LAVA_SILVER_RUPEE] = HintText(CustomMessage("a #fiery trial# in the Gerudo Training Grounds guards", {QM_RED}));
+  hintTextTable[RHT_GERUDO_TRAINING_GROUND_TOILET_SILVER_RUPEE] = HintText(CustomMessage("a #swirly trial# in the Gerudo Training Grounds guards", {QM_RED}));
+  //TODO: End Translation
 
   /*--------------------------
   |      GANONS CASTLE       |
@@ -2191,5 +2214,14 @@ hintTextTable[RHT_SHADOW_TEMPLE_MAP_CHEST] = HintText(CustomMessage("They say th
                                                          /*german*/ "",
                                                          /*french*/ "", {QM_RED, QM_GREEN}));
 
+   
+   hintTextTable[RHT_FOREST_TRIAL_SILVER_RUPEE] = HintText(CustomMessage("the #test of the wilds# holds", /*german*/"", /*french*/"l'#épreuve des bois# contient", {QM_RED}));
+   // /*spanish*/"la #prueba de la naturaleza# brinda"
+  //TODO: Translate
+  hintTextTable[RHT_FIRE_TRIAL_SILVER_RUPEE] = HintText(CustomMessage("the #test of flames# holds", {QM_RED}));
+  hintTextTable[RHT_SPIRIT_TRIAL_SILVER_RUPEE] = HintText(CustomMessage("the #test of the sands# holds", /*german*/"" /*french*/"l'#épreuve des sables# contient", {QM_RED}));
+  // /*spanish*/"la #prueba de las arenas# brinda"
+  hintTextTable[RHT_LIGHT_TRIAL_SILVER_RUPEE] = HintText(CustomMessage("the #test of radiance# holds", /*german*/"", /*french*/"l'#épreuve du ciel# contient", {QM_RED}));
+  // /*spanish*/"la #prueba del resplandor# brinda"
 }
 }

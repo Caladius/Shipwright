@@ -8,6 +8,17 @@
 #include "location.h"
 
 namespace Rando {
+struct Position{
+    SceneID scene;
+    RandomizerCheckQuest quest;
+    Vec3f pos;
+};
+
+struct Identifier {
+    SceneID scene;
+    RandomizerCheckQuest quest;
+    int16_t params;
+};
 /**
  * @brief Singleton for storing and accessing static Randomizer-related data
  * 
@@ -64,7 +75,39 @@ class StaticData {
       static std::unordered_map<u32, RandomizerHint> grottoChestParamsToHint;
       static std::array<HintText, RHT_MAX> hintTextTable;
 
+      static std::unordered_map<Position, RandomizerCheck> silverRupeeMap;
+      static std::unordered_map<Identifier, RandomizerGet> silverTrackerMap;
       StaticData();
       ~StaticData();
 };
+}
+
+namespace std {
+    template<>
+    struct hash<Rando::Position> {
+        inline size_t operator()(const Rando::Position& pos) const {
+            return hash<int>{}(pos.scene) ^ hash<int>{}(pos.quest) ^ hash<float>{}(pos.pos.x) ^ hash<float>{}(pos.pos.y) ^ hash<float>{}(pos.pos.z);
+        }
+    };
+
+    template<>
+    struct hash<Rando::Identifier> {
+        inline size_t operator()(const Rando::Identifier& id) const {
+            return hash<int>{}(id.scene) ^ hash<int>{}(id.quest) ^ hash<int>{}(id.params);
+        }
+    };
+
+    template<>
+    struct equal_to<Rando::Position> {
+        inline bool operator()(const Rando::Position& a, const Rando::Position& b) const {
+            return a.scene == b.scene && a.pos.x == b.pos.x && a.pos.y == b.pos.y && a.pos.z == b.pos.z;
+        }
+    };
+
+    template<>
+    struct equal_to<Rando::Identifier> {
+        inline bool operator()(const Rando::Identifier& a, const Rando::Identifier& b) const {
+            return a.scene == b.scene && a.params == b.params && a.quest == b.quest;
+        }
+    };
 }

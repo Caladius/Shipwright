@@ -2857,6 +2857,17 @@ u16 Randomizer_Item_Give(PlayState* play, GetItemEntry giEntry) {
         return Return_Item_Entry(giEntry, RG_NONE);
     }
 
+    if (item >= RG_SILVER_RUPEE_FIRST && item <= RG_SILVER_RUPEE_LAST) {
+        Randomizer_IncrementSilverRupeeCount(item, 1);
+        Rupees_ChangeBy(5);
+        return Return_Item_Entry(giEntry, RG_NONE);
+    }
+
+    if (item == RG_MAGICAL_SILVER_RUPEE) {
+        Flags_SetRandomizerInf(RAND_INF_MAGICAL_SILVER_RUPEE);
+        return Return_Item_Entry(giEntry, RG_NONE);
+    }
+
     temp = gSaveContext.inventory.items[slot];
     osSyncPrintf("Item_Register(%d)=%d  %d\n", slot, item, temp);
     INV_CONTENT(item) = item;

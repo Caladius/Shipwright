@@ -280,6 +280,11 @@ void AreaTable_Init_DodongosCavern() {
                   LOCATION(RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY,         logic->CanSummonGossipFairy),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY_BIG,     logic->CanUse(RG_SONG_OF_STORMS)),
                   LOCATION(RC_DODONGOS_CAVERN_GOSSIP_STONE,                  true),
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
   }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_MQ_LOWER_RIGHT_SIDE,  {[]{return Here(RR_DODONGOS_CAVERN_MQ_LOBBY, []{return logic->CanBlastOrSmash || (((logic->IsChild && logic->CanUse(RG_STICKS)) || logic->CanUse(RG_DINS_FIRE)) && logic->CanTakeDamage);});}}),

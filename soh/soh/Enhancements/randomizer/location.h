@@ -89,6 +89,7 @@ enum class LocationType {
     GrottoScrub,
     Delayed,
     TempleReward,
+    SilverRupee,
     HintStone,
     OtherHint,
 };

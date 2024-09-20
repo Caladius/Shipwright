@@ -551,6 +551,9 @@ static void WriteAllLocations() {
     auto ctx = Rando::Context::GetInstance();
     for (const RandomizerCheck key : ctx->allLocations) {
         Rando::ItemLocation* location = ctx->GetItemLocation(key);
+        if (Rando::StaticData::GetLocation(location->GetRandomizerCheck())->GetName().empty()) {
+            continue;
+        }
         std::string placedItemName;
 
         switch (gSaveContext.language) {
@@ -614,6 +617,8 @@ const char* SpoilerLog_Write() {
     jsonData.clear();
 
     jsonData["version"] = (char*) gBuildVersion;
+    jsonData["git_branch"] = (char*) gGitBranch;
+    jsonData["git_commit"] = (char*) gGitCommitHash;
     jsonData["seed"] = ctx->GetSettings()->GetSeedString();
     jsonData["finalSeed"] = ctx->GetSettings()->GetSeed();
 

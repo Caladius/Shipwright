@@ -62,6 +62,16 @@ void AreaTable_Init_GerudoTrainingGrounds() {
   areaTable[RR_GERUDO_TRAINING_GROUNDS_LAVA_ROOM] = Area("Gerudo Training Grounds Lava Room", "Gerudo Training Grounds", RA_GERUDO_TRAINING_GROUND, NO_DAY_NIGHT_CYCLE, {}, {
                   //Locations
                   LOCATION(RC_GERUDO_TRAINING_GROUND_UNDERWATER_SILVER_RUPEE_CHEST, logic->CanUse(RG_HOOKSHOT) && logic->CanUse(RG_SONG_OF_TIME) && logic->IronBoots && logic->WaterTimer >= 24),
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                 }, {
                   //Exits
                   Entrance(RR_GERUDO_TRAINING_GROUNDS_CENTRAL_MAZE_RIGHT, {[]{return logic->CanUse(RG_SONG_OF_TIME) || logic->IsChild;}}),
@@ -97,6 +107,12 @@ void AreaTable_Init_GerudoTrainingGrounds() {
   areaTable[RR_GERUDO_TRAINING_GROUNDS_HEAVY_BLOCK_ROOM] = Area("Gerudo Training Grounds Heavy Block Room", "Gerudo Training Grounds", RA_GERUDO_TRAINING_GROUND, NO_DAY_NIGHT_CYCLE, {}, {
                   //Locations
                   LOCATION(RC_GERUDO_TRAINING_GROUND_BEFORE_HEAVY_BLOCK_CHEST, logic->CanJumpslash),
+                  // TODO: Maybe a new region for the boulder maze room? Not sure if that's needed or if it's fine for them to stay here.
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                 }, {
                   //Exits
                   Entrance(RR_GERUDO_TRAINING_GROUNDS_EYE_STATUE_UPPER, {[]{return (randoCtx->GetTrickOption(RT_LENS_GTG) || logic->CanUse(RG_LENS_OF_TRUTH)) && (logic->CanUse(RG_HOOKSHOT) || (randoCtx->GetTrickOption(RT_GTG_FAKE_WALL) && logic->CanUse(RG_HOVER_BOOTS)));}}),
@@ -145,6 +161,9 @@ void AreaTable_Init_GerudoTrainingGrounds() {
   areaTable[RR_GERUDO_TRAINING_GROUNDS_MQ_UNDERWATER] = Area("Gerudo Training Grounds MQ Underwater", "Gerudo Training Grounds", RA_GERUDO_TRAINING_GROUND, NO_DAY_NIGHT_CYCLE, {}, {
                   //Locations
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_UNDERWATER_SILVER_RUPEE_CHEST, logic->HasFireSource && logic->IsAdult && logic->CanUse(RG_IRON_BOOTS) && logic->WaterTimer >= 24 && logic->CanTakeDamage),
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_1, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_2, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE_3, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
   }, {});
 
   areaTable[RR_GERUDO_TRAINING_GROUNDS_MQ_LEFT_SIDE] = Area("Gerudo Training Grounds MQ Left Side", "Gerudo Training Grounds", RA_GERUDO_TRAINING_GROUND, NO_DAY_NIGHT_CYCLE, {}, {
@@ -163,6 +182,11 @@ void AreaTable_Init_GerudoTrainingGrounds() {
                   //Locations
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_BEFORE_HEAVY_BLOCK_CHEST, logic->IsAdult && (logic->CanUse(RG_MASTER_SWORD) || logic->CanUse(RG_BIGGORON_SWORD))),
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_HEAVY_BLOCK_CHEST,        logic->CanUse(RG_SILVER_GAUNTLETS) && (logic->CanUse(RG_MASTER_SWORD) || logic->CanUse(RG_BIGGORON_SWORD))),
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_1, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_2, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_3, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_4, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE_5, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
   }, {
                   //Exits
                   Entrance(RR_GERUDO_TRAINING_GROUNDS_MQ_BACK_AREAS, {[]{return logic->IsAdult && (logic->CanUse(RG_MASTER_SWORD) || logic->CanUse(RG_BIGGORON_SWORD)) && (randoCtx->GetTrickOption(RT_LENS_GTG_MQ) || logic->CanUse(RG_LENS_OF_TRUTH)) && logic->BlueFire && (logic->CanUse(RG_SONG_OF_TIME) || (randoCtx->GetTrickOption(RT_GTG_FAKE_WALL) && logic->IsAdult && logic->CanUse(RG_HOVER_BOOTS)));}}),
@@ -185,6 +209,12 @@ void AreaTable_Init_GerudoTrainingGrounds() {
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_MAZE_RIGHT_CENTRAL_CHEST, true),
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_MAZE_RIGHT_SIDE_CHEST,    true),
                   LOCATION(RC_GERUDO_TRAINING_GROUND_MQ_ICE_ARROWS_CHEST,         logic->SmallKeys(RR_GERUDO_TRAINING_GROUNDS, 3)),
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_1, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_2, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_3, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_4, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_5, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE_6, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
   }, {
                   //Exits
                   Entrance(RR_GERUDO_TRAINING_GROUNDS_MQ_UNDERWATER,  {[]{return logic->IsAdult && (logic->CanUse(RG_LONGSHOT) || (logic->CanUse(RG_HOOKSHOT) && logic->Bow));}}),

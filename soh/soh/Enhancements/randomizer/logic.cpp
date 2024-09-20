@@ -445,9 +445,12 @@ namespace Rando {
 
     uint8_t Logic::BottleCount() {
         uint8_t count = 0;
+        if (!CanEmptyBigPoes){
+            return 0;
+        }
         for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_4; i++) {
             uint8_t item = ctx->GetSaveContext()->inventory.items[i];
-            if (item != ITEM_NONE && (item != ITEM_LETTER_RUTO || (item == ITEM_LETTER_RUTO && DeliverLetter)) && item != ITEM_BIG_POE) {
+            if (item != ITEM_NONE && (item != ITEM_LETTER_RUTO || (item == ITEM_LETTER_RUTO && DeliverLetter))) {
                 count++;
             }
         }
@@ -496,7 +499,7 @@ namespace Rando {
         KokiriSword     = CanUse(RG_KOKIRI_SWORD);
         MasterSword     = CanUse(RG_MASTER_SWORD);
         BiggoronSword   = CanUse(RG_BIGGORON_SWORD);
-        NumBottles      = ((NoBottles) ? 0 : BottleCount());
+        NumBottles      = BottleCount();
         HasBottle       = NumBottles >= 1;
         Slingshot       = CanUse(RG_FAIRY_SLINGSHOT) && (BuySeed || AmmoCanDrop);
         Ocarina         = HasItem(RG_FAIRY_OCARINA);
@@ -926,7 +929,7 @@ namespace Rando {
         //Bottle Count
         Bottles    = 0;
         NumBottles = 0;
-        NoBottles  = false;
+        CanEmptyBigPoes = true;
 
         //Triforce Pieces
         TriforcePieces = 0;

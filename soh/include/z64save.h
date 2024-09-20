@@ -68,6 +68,7 @@ typedef enum { // Pre-existing IDs for save sections in base code
     SECTION_ID_STATS,
     SECTION_ID_ENTRANCES,
     SECTION_ID_SCENES,
+    SECTION_ID_TRACKER_DATA,
     SECTION_ID_MAX
 } SaveFuncIDs;
 
@@ -279,11 +280,10 @@ typedef struct {
     /*        */ u8 pendingIceTrapCount;
     /*        */ SohStats sohStats;
     /*        */ FaroresWindData backupFW;
-    /*        */ RandomizerCheckTrackerData checkTrackerData[RC_MAX];
     // #endregion
     // #region SOH [Randomizer]
     // Upstream TODO: Move these to their own struct or name to more obviously specific to Randomizer
-    /*        */ u16 randomizerInf[(RAND_INF_MAX + 15) / 16];
+    /*        */ u16 randomizerInf[26];
     /*        */ u8 mqDungeonCount;
     /*        */ u16 adultTradeItems;
     /*        */ u8 triforcePiecesCollected;

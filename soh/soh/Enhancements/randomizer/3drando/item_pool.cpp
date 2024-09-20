@@ -1215,6 +1215,63 @@ void GenerateItemPool() {
     }
   }
 
+  // Silver Rupees
+
+  // Add the Magical Silver Rupee if the option is on
+  if (ctx->GetOption(RSK_MAGICAL_SILVER_RUPEE)) {
+    AddItemToMainPool(RG_MAGICAL_SILVER_RUPEE);
+  }
+  // The Silver Rupees to add to the pool will be different according to which dungeons are vanilla/mq.
+  if (ctx->GetOption(RSK_SHUFFLE_SILVER_RUPEES).IsNot(RO_SILVER_SHUFFLE_VANILLA)) {
+      std::vector<RandomizerGet> silversToAdd;
+      if (ctx->GetDungeon(Rando::ICE_CAVERN)->IsVanilla()) {
+          silversToAdd.push_back(RG_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE);
+          silversToAdd.push_back(RG_ICE_CAVERN_SLIDING_SILVER_RUPEE);
+      }
+      if (ctx->GetDungeon(Rando::BOTTOM_OF_THE_WELL)->IsVanilla()) {
+          silversToAdd.push_back(RG_BOTTOM_OF_THE_WELL_SILVER_RUPEE);
+      }
+      if (ctx->GetDungeon(Rando::GERUDO_TRAINING_GROUNDS)->IsVanilla()) {
+          silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_BOULDER_SILVER_RUPEE);
+          silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_LAVA_SILVER_RUPEE);
+          silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_TOILET_SILVER_RUPEE);
+      } else {
+        silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_MQ_BOULDER_SILVER_RUPEE);
+        silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_MQ_LAVA_SILVER_RUPEE);
+        silversToAdd.push_back(RG_GERUDO_TRAINING_GROUNDS_MQ_TOILET_SILVER_RUPEE);
+      }
+      if (ctx->GetDungeon(Rando::SPIRIT_TEMPLE)->IsVanilla()) {
+          silversToAdd.push_back(RG_SPIRIT_GATE_SILVER_RUPEE);
+          silversToAdd.push_back(RG_SPIRIT_BEAMOS_SILVER_RUPEE);
+          silversToAdd.push_back(RG_SPIRIT_BOULDER_SILVER_RUPEE);
+      } else {
+        silversToAdd.push_back(RG_SPIRIT_MQ_LOBBY_SILVER_RUPEE);
+      }
+      if (ctx->GetDungeon(Rando::SHADOW_TEMPLE)->IsVanilla()) {
+          silversToAdd.push_back(RG_SHADOW_SCYTHE_SILVER_RUPEE);
+          silversToAdd.push_back(RG_SHADOW_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE);
+          silversToAdd.push_back(RG_SHADOW_INVISIBLE_SPIKES_SILVER_RUPEE);
+      } else {
+        silversToAdd.push_back(RG_SHADOW_MQ_SCYTHE_SILVER_RUPEE);
+        silversToAdd.push_back(RG_SHADOW_MQ_INVISIBLE_SCYTHE_SILVER_RUPEE);
+        silversToAdd.push_back(RG_SHADOW_MQ_OUTSIDE_SPIKE_RAIN_SILVER_RUPEE);
+        silversToAdd.push_back(RG_SHADOW_MQ_INVISIBLE_SPIKES_SILVER_RUPEE);
+      }
+      if (ctx->GetDungeon(Rando::GANONS_CASTLE)->IsVanilla()) {
+          silversToAdd.push_back(RG_FOREST_TRIAL_SILVER_RUPEE);
+          silversToAdd.push_back(RG_FIRE_TRIAL_SILVER_RUPEE);
+          silversToAdd.push_back(RG_SPIRIT_TRIAL_SILVER_RUPEE);
+          silversToAdd.push_back(RG_LIGHT_TRIAL_SILVER_RUPEE);
+      } else {
+        silversToAdd.push_back(RG_FIRE_TRIAL_MQ_SILVER_RUPEE);
+        silversToAdd.push_back(RG_WATER_TRIAL_MQ_SILVER_RUPEE);
+        silversToAdd.push_back(RG_SHADOW_TRIAL_MQ_SILVER_RUPEE);
+      }
+      for (auto rgid : silversToAdd) {
+          AddItemToMainPool(rgid, ctx->GetSilverRupees()->GetInfo(rgid).GetTotal());
+      }
+  }
+
   if (ctx->GetOption(RSK_ITEM_POOL).Is(RO_ITEM_POOL_PLENTIFUL)) {
     if (ctx->GetOption(RSK_SHUFFLE_GERUDO_MEMBERSHIP_CARD)) {
       AddItemToPool(PendingJunkPool, RG_GERUDO_MEMBERSHIP_CARD);

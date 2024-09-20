@@ -56,6 +56,16 @@ void AreaTable_Init_IceCavern() {
                   LOCATION(RC_ICE_CAVERN_SLIDING_BLOCK_RUPEE_1,   logic->BlueFire && logic->CanUse(RG_SONG_OF_TIME)),
                   LOCATION(RC_ICE_CAVERN_SLIDING_BLOCK_RUPEE_2,   logic->BlueFire && logic->CanUse(RG_SONG_OF_TIME)),
                   LOCATION(RC_ICE_CAVERN_SLIDING_BLOCK_RUPEE_3,   logic->BlueFire && logic->CanUse(RG_SONG_OF_TIME)),
+                  LocationAccess(RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SPINNING_BLADES_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_ICE_CAVERN_SLIDING_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
   }, {});
   }
 

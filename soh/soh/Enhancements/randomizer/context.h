@@ -8,6 +8,7 @@
 #include "hint.h"
 #include "fishsanity.h"
 #include "trial.h"
+#include "silver_rupee.h"
 
 #include <memory>
 #include <array>
@@ -61,6 +62,7 @@ class Context {
     void ClearItemLocations();
     void ItemReset();
     void HintReset();
+    void SilverRupeeReset();
     void CreateItemOverrides();
     bool IsSeedGenerated() const;
     void SetSeedGenerated(bool seedGenerated = true);
@@ -73,6 +75,7 @@ class Context {
     std::shared_ptr<EntranceShuffler> GetEntranceShuffler();
     std::shared_ptr<Dungeons> GetDungeons();
     std::shared_ptr<Fishsanity> GetFishsanity();
+    std::shared_ptr<SilverRupees> GetSilverRupees();
     DungeonInfo* GetDungeon(size_t key) const;
     std::shared_ptr<Logic> GetLogic();
     SaveContext* GetSaveContext();
@@ -135,6 +138,7 @@ class Context {
     SaveContext* mSaveContext = nullptr;
     std::shared_ptr<Trials> mTrials;
     std::shared_ptr<Fishsanity> mFishsanity;
+    std::shared_ptr<SilverRupees> mSilverRupees;
     bool mSeedGenerated = false;
     bool mSpoilerLoaded = false;
     bool mPlandoLoaded = false;

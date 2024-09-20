@@ -69,6 +69,12 @@ void AreaTable_Init_BottomOfTheWell() {
                   LOCATION(RC_BOTTOM_OF_THE_WELL_COFFIN_ROOM_FRONT_LEFT_HEART,        (logic->HasItem(RG_BRONZE_SCALE) || logic->CanUse(RG_ZELDAS_LULLABY)) && (logic->CanUse(RG_STICKS) || logic->CanUse(RG_DINS_FIRE))),
                   LOCATION(RC_BOTTOM_OF_THE_WELL_COFFIN_ROOM_MIDDLE_RIGHT_HEART,      (logic->HasItem(RG_BRONZE_SCALE) || logic->CanUse(RG_ZELDAS_LULLABY)) && (logic->CanUse(RG_STICKS) || logic->CanUse(RG_DINS_FIRE))),
                   LOCATION(RC_BOTTOM_OF_THE_WELL_BASEMENT_SUN_FAIRY,           (randoCtx->GetTrickOption(RT_LENS_BOTW) || logic->CanUse(RG_LENS_OF_TRUTH)) && logic->CanUse(RG_SUNS_SONG)),
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_BOTTOM_OF_THE_WELL_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                 }, {
                   //Exits
                   Entrance(RR_BOTTOM_OF_THE_WELL_ENTRYWAY, {[]{return true;}}),

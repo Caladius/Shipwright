@@ -78,6 +78,8 @@ typedef enum {
     // Vanilla condition: INFTABLE_GREETED_BY_SARIA
     VB_NOT_BE_GREETED_BY_SARIA,
     // Opt: *EnMd
+    VB_MIDO_SPAWN,
+    // Opt: *EnMd
     // Vanilla condition: EnMd->interactInfo.talkState == NPC_TALK_STATE_ACTION
     VB_MOVE_MIDO_IN_KOKIRI_FOREST,
     // Opt: *EnMd
@@ -247,6 +249,8 @@ typedef enum {
     VB_POT_DROP_ITEM,
     // Opt: *ActorDoorShutter
     VB_LOCK_DOOR,
+    VB_FREEZE_LINK_FOR_BLOCK_THROW,
+    VB_MOVE_THROWN_ACTOR,
 
     /*** Play Cutscenes ***/
 
@@ -289,6 +293,7 @@ typedef enum {
     VB_PLAY_RAINBOW_BRIDGE_CS,
     // Opt: *EnBox
     VB_PLAY_SLOW_CHEST_CS,
+    VB_PLAY_THROW_ANIMATION,
 
     /*** Give Items ***/
 
