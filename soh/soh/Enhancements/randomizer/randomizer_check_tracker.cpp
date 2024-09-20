@@ -62,6 +62,8 @@ bool showScrubs;
 bool showMerchants;
 bool showBeehives;
 bool showCows;
+bool showOverworldFreestanding;
+bool showDungeonFreestanding;
 bool showAdultTrade;
 bool showKokiriSword;
 bool showMasterSword;
@@ -71,6 +73,7 @@ bool showGerudoCard;
 bool showOverworldPots;
 bool showDungeonPots;
 bool showFrogSongRupees;
+bool showFairies;
 bool showStartingMapsCompasses;
 bool showKeysanity;
 bool showGerudoFortressKeys;
@@ -1211,6 +1214,9 @@ void LoadSettings() {
     showFrogSongRupees = IS_RANDO ?
         OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_FROG_SONG_RUPEES) == RO_GENERIC_YES
         : false;
+    showFairies = IS_RANDO ?
+        OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_FAIRIES) == RO_GENERIC_YES
+        : false;
     showStartingMapsCompasses = IS_RANDO ?
         OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_MAPANDCOMPASS) != RO_DUNGEON_ITEM_LOC_VANILLA
         : false;
@@ -1301,6 +1307,30 @@ void LoadSettings() {
     fishsanityMode = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_FISHSANITY);
     fishsanityPondCount = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_FISHSANITY_POND_COUNT);
     fishsanityAgeSplit = OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_FISHSANITY_AGE_SPLIT);
+
+    if (IS_RANDO) {
+        switch (OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_FREESTANDING)) {
+            case RO_TOKENSANITY_ALL:
+                showOverworldFreestanding = true;
+                showDungeonFreestanding = true;
+                break;
+            case RO_TOKENSANITY_OVERWORLD:
+                showOverworldFreestanding = true;
+                showDungeonFreestanding = false;
+                break;
+            case RO_TOKENSANITY_DUNGEONS:
+                showOverworldFreestanding = false;
+                showDungeonFreestanding = true;
+                break;
+            default:
+                showOverworldFreestanding = false;
+                showDungeonFreestanding = false;
+                break;
+        }
+    } else { // Vanilla
+        showOverworldFreestanding = false;
+        showDungeonFreestanding = true;
+    }
 }
 
 bool IsCheckShuffled(RandomizerCheck rc) {
@@ -1338,6 +1368,10 @@ bool IsCheckShuffled(RandomizerCheck rc) {
                 (showDungeonPots && RandomizerCheckObjects::AreaIsDungeon(loc->GetArea()))) &&
             (loc->GetRCType() != RCTYPE_COW || showCows) &&
             (loc->GetRCType() != RCTYPE_FISH || OTRGlobals::Instance->gRandoContext->GetFishsanity()->GetFishLocationIncluded(loc)) &&
+            (loc->GetRCType() != RCTYPE_FREESTANDING ||
+                (showOverworldFreestanding && RandomizerCheckObjects::AreaIsOverworld(loc->GetArea())) ||
+                (showDungeonFreestanding && RandomizerCheckObjects::AreaIsDungeon(loc->GetArea()))
+                ) &&
             (loc->GetRCType() != RCTYPE_ADULT_TRADE ||
                 showAdultTrade ||
                 rc == RC_KAK_ANJU_AS_ADULT ||  // adult trade checks that are always shuffled
@@ -1350,6 +1384,7 @@ bool IsCheckShuffled(RandomizerCheck rc) {
             (rc != RC_HC_MALON_EGG || showWeirdEgg) &&
             (loc->GetRCType() != RCTYPE_FROG_SONG || showFrogSongRupees) &&
             (loc->GetRCType() != RCTYPE_MAP_COMPASS || showStartingMapsCompasses) &&
+            (loc->GetRCType() != RCTYPE_FAIRY || showFairies) &&
             (loc->GetRCType() != RCTYPE_SMALL_KEY || showKeysanity) &&
             (loc->GetRCType() != RCTYPE_BOSS_KEY || showBossKeysanity) &&
             (loc->GetRCType() != RCTYPE_GANON_BOSS_KEY || showGanonBossKey) &&
