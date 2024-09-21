@@ -71,6 +71,8 @@ namespace Rando {
                 return Scarecrow;
             case RG_DISTANT_SCARECROW:
                 return DistantScarecrow;
+            case RG_MAGIC_BEAN:
+                return ctx->GetAmmo(ITEM_BEAN) > 0;
             case RG_KOKIRI_SWORD:
             case RG_DEKU_SHIELD:
             case RG_GORON_TUNIC:
@@ -286,6 +288,8 @@ namespace Rando {
                 return BombchuRefill && BombchusEnabled;
             case RG_RUTOS_LETTER:
                 return IsChild;
+            case RG_MAGIC_BEAN:
+                return IsChild;
 
                 // Adult Trade
             case RG_POCKET_EGG:
@@ -441,9 +445,12 @@ namespace Rando {
 
     uint8_t Logic::BottleCount() {
         uint8_t count = 0;
+        if (!CanEmptyBigPoes){
+            return 0;
+        }
         for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_4; i++) {
             uint8_t item = ctx->GetSaveContext()->inventory.items[i];
-            if (item != ITEM_NONE && (item != ITEM_LETTER_RUTO || (item == ITEM_LETTER_RUTO && DeliverLetter)) && item != ITEM_BIG_POE) {
+            if (item != ITEM_NONE && (item != ITEM_LETTER_RUTO || (item == ITEM_LETTER_RUTO && DeliverLetter))) {
                 count++;
             }
         }
@@ -463,7 +470,7 @@ namespace Rando {
         BuyArrow       = GetInLogic(LOGIC_BUY_ARROW);
         BuyBomb        = GetInLogic(LOGIC_BUY_BOMB);
         BuyMagicPotion = GetInLogic(LOGIC_BUY_MAGIC_POTION);
-        MagicBean      = ctx->GetAmmo(ITEM_BEAN) > 0;
+        MagicBean      = HasItem(RG_MAGIC_BEAN);
         RutosLetter    = CanUse(RG_RUTOS_LETTER);
         Boomerang      = CanUse(RG_BOOMERANG);
         DinsFire       = CanUse(RG_DINS_FIRE);
@@ -492,7 +499,7 @@ namespace Rando {
         KokiriSword     = CanUse(RG_KOKIRI_SWORD);
         MasterSword     = CanUse(RG_MASTER_SWORD);
         BiggoronSword   = CanUse(RG_BIGGORON_SWORD);
-        NumBottles      = ((NoBottles) ? 0 : BottleCount());
+        NumBottles      = BottleCount();
         HasBottle       = NumBottles >= 1;
         Slingshot       = CanUse(RG_FAIRY_SLINGSHOT) && (BuySeed || AmmoCanDrop);
         Ocarina         = HasItem(RG_FAIRY_OCARINA);
@@ -922,7 +929,7 @@ namespace Rando {
         //Bottle Count
         Bottles    = 0;
         NumBottles = 0;
-        NoBottles  = false;
+        CanEmptyBigPoes = true;
 
         //Triforce Pieces
         TriforcePieces = 0;

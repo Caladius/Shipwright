@@ -348,6 +348,18 @@ void Settings::CreateOptionDescriptions() {
         "have collected all 100 Gold Skulltula Tokens.\n"
         "\n"
         "You can still talk to him multiple times to get Huge Rupees.";
+    mOptionDescriptions[RSK_SHUFFLE_FREESTANDING] = "Freestanding rupees & hearts are shuffles to random items. "
+                                              "Freestanding heart pieces and small keys are already shuffled by default.\n"
+                                              "\n"
+                                              "Off - freestanding rupees & hearts will not be shuffled.\n"
+                                              "\n"
+                                              "Dungeons - Only freestanding rupees & hearts that are within dungeons.\n"
+                                              "\n"
+                                              "Overworld - Only freestanding rupees & hearts that are outside of dungeons.\n"
+                                              "\n"
+                                              "All Items - Shuffle all freestanding rupees & hearts.";
+    mOptionDescriptions[RSK_SHUFFLE_FAIRIES] =
+        "Shuffle fairy locations.";
     mOptionDescriptions[RSK_SHUFFLE_DUNGEON_REWARDS] =
         "Shuffles the location of spiritual stones and medallions.\n"
         "\n"
@@ -421,6 +433,17 @@ void Settings::CreateOptionDescriptions() {
                                               "Overworld - Boss Keys can only appear outside of dungeons.\n"
                                               "\n"
                                               "Anywhere - Boss Keys can appear anywhere in the world.";
+    mOptionDescriptions[RSK_SHUFFLE_SILVER_RUPEES] = "Vanilla - Silver Rupees will appear in their vanilla locations.\n"
+                                                     "\n"
+                                                     "Own dungeon - Silver Rupees can only appear in their respective dungeon.\n"
+                                                     "\n"
+                                                     "Any dungeon - Silver Rupees can only appear inside of any dungeon.\n"
+                                                     "\n"
+                                                     "Overworld - Silver Rupees can only appear outside of dungeons.\n"
+                                                     "\n"
+                                                     "Anywhere - Silver Rupees can appear anywhere in the world.";
+    mOptionDescriptions[RSK_MAGICAL_SILVER_RUPEE] = "Adds a Magical Silver Rupee that opens all silver rupee puzzles to the item pool."
+    "It is not considered in logic, so you will not be required to find it to beat the seed, but if you do find it, it is a nice bonus.";
     mOptionDescriptions[RSK_GANONS_BOSS_KEY] =
         "Vanilla - Ganon's Boss Key will appear in the vanilla location.\n"
         "\n"

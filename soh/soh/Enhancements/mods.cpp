@@ -35,8 +35,10 @@
 #include "src/overlays/actors/ovl_Door_Shutter/z_door_shutter.h"
 #include "src/overlays/actors/ovl_Door_Gerudo/z_door_gerudo.h"
 #include "src/overlays/actors/ovl_En_Door/z_en_door.h"
+#include "src/overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "objects/object_link_boy/object_link_boy.h"
 #include "objects/object_link_child/object_link_child.h"
+#include "soh/Enhancements/randomizer/actors/z_en_g_switch_rando.h"
 
 extern "C" {
 #include <z64.h>
@@ -274,13 +276,14 @@ void RegisterOcarinaTimeTravel() {
         Actor* nearbyOcarinaSpot = Actor_FindNearby(gPlayState, player, ACTOR_EN_OKARINA_TAG, ACTORCAT_PROP, 120.0f);
         Actor* nearbyDoorOfTime = Actor_FindNearby(gPlayState, player, ACTOR_DOOR_TOKI, ACTORCAT_BG, 500.0f);
         Actor* nearbyFrogs = Actor_FindNearby(gPlayState, player, ACTOR_EN_FR, ACTORCAT_NPC, 300.0f);
+        Actor* nearbyGossipStone = Actor_FindNearby(gPlayState, player, ACTOR_EN_GS, ACTORCAT_NPC, 300.0f);
         uint8_t hasMasterSword = CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, EQUIP_INV_SWORD_MASTER);
         uint8_t hasOcarinaOfTime = (INV_CONTENT(ITEM_OCARINA_TIME) == ITEM_OCARINA_TIME);
         // If TimeTravel + Player have the Ocarina of Time + Have Master Sword + is in proper range
         // TODO: Once Swordless Adult is fixed: Remove the Master Sword check
         if (((CVarGetInteger(CVAR_ENHANCEMENT("TimeTravel"), 0) == 1 && hasOcarinaOfTime) || CVarGetInteger(CVAR_ENHANCEMENT("TimeTravel"), 0) == 2) && hasMasterSword &&
             gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_TIME && !nearbyTimeBlockEmpty && !nearbyTimeBlock &&
-            !nearbyOcarinaSpot && !nearbyFrogs) {
+            !nearbyOcarinaSpot && !nearbyFrogs && !nearbyGossipStone) {
 
             if (IS_RANDO) {
                 CVarSetInteger(CVAR_GENERAL("SwitchTimeline"), 1);
@@ -1186,6 +1189,55 @@ void RegisterRandomizerSheikSpawn() {
     });
 }
 
+//Changes silver rupee update and draw functions, if silver rupees shuffle is enabled
+void RegisterSilverRupeeShuffle() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](void* refActor) {
+        if (!gPlayState) {
+            return;
+        }
+        if (!IS_RANDO || OTRGlobals::Instance->gRandoContext->GetOption(RSK_SHUFFLE_SILVER_RUPEES).Is(RO_SILVER_SHUFFLE_VANILLA)) {
+            return;
+        }
+        auto* actor = static_cast<Actor*>(refActor);
+        if (actor->id == ACTOR_EN_G_SWITCH) {
+            auto* silverRupee = reinterpret_cast<EnGSwitch*>(actor);
+            if (silverRupee->type == ENGSWITCH_SILVER_RUPEE) {
+                // Override any Actor_Kill calls from the vanilla silver rupee init function.
+                silverRupee->actor.update = EnGSwitch_Update;
+                silverRupee->actor.flags = ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED;
+                Actor_SetScale(&silverRupee->actor, 0.03f);
+                Rando::Position randoPos = {static_cast<SceneID>(gPlayState->sceneNum), ResourceMgr_IsSceneMasterQuest(gPlayState->sceneNum) ? RCQUEST_MQ : RCQUEST_VANILLA, actor->world.pos};
+                silverRupee->rc = Rando::StaticData::silverRupeeMap.at(randoPos);
+                Rando::Location* loc = Rando::StaticData::GetLocation(silverRupee->rc);
+                silverRupee->randInfFlag = static_cast<RandomizerInf>(loc->GetCollectionCheck().flag);
+                if (Flags_GetRandomizerInf(silverRupee->randInfFlag)) {
+                    Actor_Kill(actor);
+                }
+                silverRupee->rg = OTRGlobals::Instance->gRandoContext->GetItemLocation(silverRupee->rc)->GetPlacedRandomizerGet();
+                silverRupee->giEntry = OTRGlobals::Instance->gRandoContext->GetFinalGIEntry(silverRupee->rc, true, GI_NONE);
+                silverRupee->actionFunc = EnGSwitch_Randomizer_SilverRupeeIdle;
+                silverRupee->actor.draw = EnGSwitch_Randomizer_Draw;
+            } else if (silverRupee->type == ENGSWITCH_SILVER_TRACKER) {
+                Rando::Identifier randoIdentifier = {
+                    static_cast<SceneID>(gPlayState->sceneNum),
+                    ResourceMgr_IsSceneMasterQuest(gPlayState->sceneNum) ? RCQUEST_MQ : RCQUEST_VANILLA, actor->params
+                };
+                silverRupee->rg = Rando::StaticData::silverTrackerMap.at(randoIdentifier);
+                if ((OTRGlobals::Instance->gRandoContext->GetSilverRupees()->GetInfo(silverRupee->rg).GetCollected() >= silverRupee->silverCount)
+                    || Flags_GetRandomizerInf(RAND_INF_MAGICAL_SILVER_RUPEE)) {
+                    if ((gPlayState->sceneNum == SCENE_GERUDO_TRAINING_GROUND) && (silverRupee->actor.room == 2)) {
+                        Flags_SetTempClear(gPlayState, silverRupee->actor.room);
+                    } else {
+                        func_80078884(NA_SE_SY_CORRECT_CHIME);
+                        Flags_SetSwitch(gPlayState, silverRupee->switchFlag);
+                    }
+                    Actor_Kill(&silverRupee->actor);
+                }
+            }
+        }
+    });
+}
+
 //Boss souls require an additional item (represented by a RAND_INF) to spawn a boss in a particular lair
 void RegisterBossSouls() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](void* actor) {
@@ -1779,6 +1831,28 @@ void RegisterSkeletonKey() {
     });
 }
 
+#define FAIRY_FLAG_BIG (1 << 9)
+void RegisterFairyCustomization() {
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnVanillaBehavior>(VB_FAIRY_HEAL, [](GIVanillaBehavior id, bool* should, void* refActor) {
+        EnElf* enElf = static_cast<EnElf*>(refActor);
+        // Don't trigger if fairy is shuffled
+        if (!IS_RANDO || !OTRGlobals::Instance->gRandomizer->GetRandoSettingValue(RSK_SHUFFLE_FAIRIES) || enElf->sohFairyIdentity.randomizerInf == RAND_INF_MAX) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("FairyEffect"), 0) && !(enElf->fairyFlags & FAIRY_FLAG_BIG))
+            {
+                if (CVarGetInteger(CVAR_ENHANCEMENT("FairyPercentRestore"), 0))
+                {
+                    Health_ChangeBy(gPlayState, (gSaveContext.healthCapacity * CVarGetInteger(CVAR_ENHANCEMENT("FairyHealth"), 100) / 100 + 15) / 16 * 16);
+                }
+                else
+                {
+                    Health_ChangeBy(gPlayState, CVarGetInteger(CVAR_ENHANCEMENT("FairyHealth"), 8) * 16);
+                }
+                *should = false;
+            }
+        }
+    });
+}
+
 void InitMods() {
     RandomizerRegisterHooks();
     TimeSaverRegisterHooks();
@@ -1815,6 +1889,7 @@ void InitMods() {
     RegisterAltTrapTypes();
     RegisterRandomizerSheikSpawn();
     RegisterBossSouls();
+    RegisterSilverRupeeShuffle();
     RegisterRandomizedEnemySizes();
     RegisterOpenAllHours();
     RegisterToTMedallions();
@@ -1830,4 +1905,5 @@ void InitMods() {
     RegisterPauseMenuHooks();
     RegisterSkeletonKey();
     RegisterShufflePots();
+    RegisterFairyCustomization();
 }

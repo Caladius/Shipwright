@@ -36,6 +36,11 @@ void AreaTable_Init_SpiritTemple() {
                 }, {
                   //Locations
                   LOCATION(RC_SPIRIT_TEMPLE_CHILD_BRIDGE_CHEST,        (logic->Boomerang || logic->Slingshot || (logic->CanUse(RG_BOMBCHU_5) && randoCtx->GetTrickOption(RT_SPIRIT_CHILD_CHU))) && (logic->HasExplosives || ((logic->CanUse(RG_NUTS) || logic->Boomerang) && (logic->CanUse(RG_STICKS)  || logic->KokiriSword || logic->Slingshot)))),
+                  LocationAccess(RC_SPIRIT_GATE_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_GATE_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_GATE_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_GATE_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_GATE_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                   LOCATION(RC_SPIRIT_TEMPLE_CHILD_EARLY_TORCHES_CHEST, (logic->Boomerang || logic->Slingshot || (logic->CanUse(RG_BOMBCHU_5) && randoCtx->GetTrickOption(RT_SPIRIT_CHILD_CHU))) && (logic->HasExplosives || ((logic->CanUse(RG_NUTS) || logic->Boomerang) && (logic->CanUse(RG_STICKS)  || logic->KokiriSword || logic->Slingshot))) && (logic->CanUse(RG_STICKS) || logic->CanUse(RG_DINS_FIRE))),
                   LOCATION(RC_SPIRIT_TEMPLE_GS_METAL_FENCE,            (logic->Boomerang || logic->Slingshot || (logic->CanUse(RG_BOMBCHU_5) && randoCtx->GetTrickOption(RT_SPIRIT_CHILD_CHU))) && (logic->HasExplosives || ((logic->CanUse(RG_NUTS) || logic->Boomerang) && (logic->CanUse(RG_STICKS)  || logic->KokiriSword || logic->Slingshot)))),
                   LOCATION(RC_SPIRIT_TEMPLE_ANUBIS_POT_1,              logic->CanBreakPots),
@@ -56,6 +61,11 @@ void AreaTable_Init_SpiritTemple() {
                                                                                         (logic->IsChild && logic->SmallKeys(RR_SPIRIT_TEMPLE, 5) && logic->HasProjectile(HasProjectileAge::Child)) ||
                                                                                           ((logic->SmallKeys(RR_SPIRIT_TEMPLE, 3) || (logic->SmallKeys(RR_SPIRIT_TEMPLE, 2) && randoCtx->GetOption(RSK_BOMBCHUS_IN_LOGIC) && logic->BombchuRefill && randoCtx->GetOption(RSK_SHUFFLE_DUNGEON_ENTRANCES).Is(RO_DUNGEON_ENTRANCE_SHUFFLE_OFF))) && logic->CanUse(RG_SILVER_GAUNTLETS) && (logic->HasProjectile(HasProjectileAge::Adult) || (logic->CanTakeDamage && logic->CanJumpslash)))),
                   LOCATION(RC_SPIRIT_TEMPLE_CHILD_CLIMB_POT_1,       logic->CanBreakPots),
+                  LocationAccess(RC_SPIRIT_BEAMOS_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BEAMOS_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BEAMOS_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BEAMOS_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BEAMOS_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                 }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_CENTRAL_CHAMBER, {[]{return logic->HasExplosives || (randoCtx->GetOption(RSK_SUNLIGHT_ARROWS) && logic->CanUse(RG_LIGHT_ARROWS));}}),
@@ -68,6 +78,12 @@ void AreaTable_Init_SpiritTemple() {
                   LOCATION(RC_SPIRIT_TEMPLE_FIRST_MIRROR_LEFT_CHEST,  logic->SmallKeys(RR_SPIRIT_TEMPLE, 3)),
                   LOCATION(RC_SPIRIT_TEMPLE_FIRST_MIRROR_RIGHT_CHEST, logic->SmallKeys(RR_SPIRIT_TEMPLE, 3)),
                   LOCATION(RC_SPIRIT_TEMPLE_GS_BOULDER_ROOM,          logic->CanUse(RG_SONG_OF_TIME) && (logic->Bow || logic->Hookshot || logic->CanUse(RG_BOMBCHU_5) || (logic->Bombs && randoCtx->GetTrickOption(RT_SPIRIT_LOWER_ADULT_SWITCH)))),
+                  LOCATION(RC_SPIRIT_TEMPLE_BOULDER_ROOM_SUN_FAIRY,   logic->CanUse(RG_SUNS_SONG) && (logic->CanUse(RG_FAIRY_BOW) || logic->CanUse(RG_HOOKSHOT) || logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_BOOMERANG) || logic->CanUse(RG_BOMBCHU_5) || (logic->Bombs && logic->IsAdult && randoCtx->GetTrickOption(RT_SPIRIT_LOWER_ADULT_SWITCH))) && (logic->CanUse(RG_HOVER_BOOTS) || logic->CanJumpslash)),
+                  LocationAccess(RC_SPIRIT_BOULDER_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BOULDER_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BOULDER_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BOULDER_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_BOULDER_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
                 }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_CENTRAL_CHAMBER, {[]{return logic->SmallKeys(RR_SPIRIT_TEMPLE, 1);}}),
@@ -126,6 +142,7 @@ void AreaTable_Init_SpiritTemple() {
                   LOCATION(RC_SPIRIT_TEMPLE_HALLWAY_LEFT_INVISIBLE_CHEST,  (randoCtx->GetTrickOption(RT_LENS_SPIRIT) || logic->CanUse(RG_LENS_OF_TRUTH)) && logic->HasExplosives),
                   LOCATION(RC_SPIRIT_TEMPLE_HALLWAY_RIGHT_INVISIBLE_CHEST, (randoCtx->GetTrickOption(RT_LENS_SPIRIT) || logic->CanUse(RG_LENS_OF_TRUTH)) && logic->HasExplosives),
                   LOCATION(RC_SPIRIT_TEMPLE_BEAMOS_HALL_POT_1,             logic->CanBreakPots),
+                  LOCATION(RC_SPIRIT_TEMPLE_ARMOS_ROOM_SUN_FAIRY,          logic->HasExplosives && logic->CanUse(RG_SUNS_SONG)),
                 }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_BEYOND_FINAL_LOCKED_DOOR, {[]{return logic->SmallKeys(RR_SPIRIT_TEMPLE, 5) && (randoCtx->GetTrickOption(RT_SPIRIT_WALL) || logic->CanUse(RG_LONGSHOT) || logic->CanUse(RG_BOMBCHU_5) || ((logic->Bombs || logic->CanUse(RG_NUTS) || logic->CanUse(RG_DINS_FIRE)) && (logic->Bow || logic->CanUse(RG_HOOKSHOT) || logic->Hammer)));}}),
@@ -135,6 +152,8 @@ void AreaTable_Init_SpiritTemple() {
                   //Locations
                   LOCATION(RC_SPIRIT_TEMPLE_BOSS_KEY_CHEST, logic->CanUse(RG_ZELDAS_LULLABY) && ((logic->CanTakeDamage && randoCtx->GetTrickOption(RT_FLAMING_CHESTS)) || (logic->Bow && logic->Hookshot))),
                   LOCATION(RC_SPIRIT_TEMPLE_TOPMOST_CHEST,  (logic->MirrorShield && logic->CanAdultAttack) || (randoCtx->GetOption(RSK_SUNLIGHT_ARROWS) && logic->CanUse(RG_LIGHT_ARROWS))),
+                  LOCATION(RC_SPIRIT_TEMPLE_ADULT_CLIMB_LEFT_HEART,   logic->CanUse(RG_HOOKSHOT)),
+                  LOCATION(RC_SPIRIT_TEMPLE_ADULT_CLIMB_RIGHT_HEART,  logic->CanUse(RG_HOOKSHOT)),
   }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_INSIDE_STATUE_HEAD, {[]{return logic->MirrorShield && logic->HasExplosives && logic->Hookshot;}}),
@@ -158,6 +177,11 @@ void AreaTable_Init_SpiritTemple() {
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_ENTRANCE_FRONT_LEFT_CHEST, true),
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_ENTRANCE_BACK_LEFT_CHEST,  Here(RR_SPIRIT_TEMPLE_MQ_LOBBY, []{return logic->CanBlastOrSmash;}) && ((logic->IsChild && logic->CanUse(RG_FAIRY_SLINGSHOT)) || (logic->IsAdult && logic->CanUse(RG_FAIRY_BOW)))),
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_ENTRANCE_BACK_RIGHT_CHEST, logic->CanUse(RG_BOMBCHU_5) || (logic->IsAdult && (logic->CanUse(RG_FAIRY_BOW) || logic->CanUse(RG_HOOKSHOT))) || (logic->IsChild && (logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_BOOMERANG)))),
+                  LocationAccess(RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_1, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_2, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_3, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_4, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_SPIRIT_MQ_LOBBY_SILVER_RUPEE_5, {[]{ return true; }}), /*TODO: Silver Rupee Logic*/
   }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_ENTRYWAY, {[]{return true;}}),
@@ -175,6 +199,8 @@ void AreaTable_Init_SpiritTemple() {
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_MAP_CHEST,                  logic->KokiriSword || logic->Bombs),
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_SILVER_BLOCK_HALLWAY_CHEST, logic->CanUse(RG_BOMBCHU_5) && logic->SmallKeys(RR_SPIRIT_TEMPLE, 7) && logic->Slingshot && (logic->CanUse(RG_DINS_FIRE) || (Here(RR_SPIRIT_TEMPLE_MQ_ADULT, []{return logic->IsAdult && (logic->CanUse(RG_FIRE_ARROWS) || (randoCtx->GetTrickOption(RT_SPIRIT_MQ_FROZEN_EYE) && logic->CanUse(RG_FAIRY_BOW) && logic->CanUse(RG_SONG_OF_TIME)));})))),
                     //Trick: logic->CanUse(RG_BOMBCHU_5) && logic->SmallKeys(RR_SPIRIT_TEMPLE, 7) && logic->Slingshot && (logic->CanUse(RG_DINS_FIRE) || (SPIRIT_TEMPLE_MQ_ADULT.Adult() && logic->IsAdult && (logic->CanUse(RG_FIRE_ARROWS) || (LogicSpiritMQFrozenEye && logic->CanUse(RG_FAIRY_BOW) && logic->CanUse(RG_SONG_OF_TIME)))))
+                  LOCATION(RC_SPIRIT_TEMPLE_MQ_CHILD_LEFT_HEART,           logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_FAIRY_BOW)),
+                  LOCATION(RC_SPIRIT_TEMPLE_MQ_CHILD_RIGHT_HEART,          logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_FAIRY_BOW)),
   }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_MQ_SHARED, {[]{return logic->CanUse(RG_BOMBCHU_5) && logic->SmallKeys(RR_SPIRIT_TEMPLE, 2);}}),
@@ -190,6 +216,7 @@ void AreaTable_Init_SpiritTemple() {
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_BOSS_KEY_CHEST,              logic->SmallKeys(RR_SPIRIT_TEMPLE, 5) && logic->CanUse(RG_SONG_OF_TIME) && (logic->MirrorShield || (randoCtx->GetOption(RSK_SUNLIGHT_ARROWS) && logic->CanUse(RG_LIGHT_ARROWS)))),
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_GS_NINE_THRONES_ROOM_WEST,   logic->SmallKeys(RR_SPIRIT_TEMPLE, 7)),
                   LOCATION(RC_SPIRIT_TEMPLE_MQ_GS_NINE_THRONES_ROOM_NORTH,  logic->SmallKeys(RR_SPIRIT_TEMPLE, 7)),
+                  LOCATION(RC_SPIRIT_TEMPLE_MQ_DINALFOS_ROOM_SUN_FAIRY,        logic->SmallKeys(RR_SPIRIT_TEMPLE, 5) && logic->CanUse(RG_SONG_OF_TIME) && logic->CanUse(RG_SUNS_SONG)),
   }, {
                   //Exits
                   Entrance(RR_SPIRIT_TEMPLE_MQ_LOWER_ADULT,        {[]{return logic->MirrorShield && logic->IsAdult && (logic->CanUse(RG_FIRE_ARROWS) || (randoCtx->GetTrickOption(RT_SPIRIT_MQ_LOWER_ADULT) && logic->CanUse(RG_DINS_FIRE) && logic->Bow));}}),

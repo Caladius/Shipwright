@@ -146,6 +146,8 @@ void WriteIngameSpoilerLog() {
                  (ctx->GetOption(RSK_GERUDO_FORTRESS).Is(RO_GF_FAST) && loc->IsCategory(Category::cVanillaGFSmallKey) &&
                   loc->GetHintKey() != RHT_GF_NORTH_F1_CARPENTER)) {
             continue;
+        } else if (!ctx->GetOption(RSK_SHUFFLE_FREESTANDING) && loc->IsCategory(Category::cFreestanding)) {
+            continue;
         }
 
         // Copy at most 51 chars from the name and location name to avoid issues with names that don't fit on screen
@@ -549,6 +551,9 @@ static void WriteAllLocations() {
     auto ctx = Rando::Context::GetInstance();
     for (const RandomizerCheck key : ctx->allLocations) {
         Rando::ItemLocation* location = ctx->GetItemLocation(key);
+        if (Rando::StaticData::GetLocation(location->GetRandomizerCheck())->GetName().empty()) {
+            continue;
+        }
         std::string placedItemName;
 
         switch (gSaveContext.language) {
@@ -612,6 +617,8 @@ const char* SpoilerLog_Write() {
     jsonData.clear();
 
     jsonData["version"] = (char*) gBuildVersion;
+    jsonData["git_branch"] = (char*) gGitBranch;
+    jsonData["git_commit"] = (char*) gGitCommitHash;
     jsonData["seed"] = ctx->GetSettings()->GetSeedString();
     jsonData["finalSeed"] = ctx->GetSettings()->GetSeed();
 

@@ -29,6 +29,7 @@ Context::Context() {
     mTrials = std::make_shared<Trials>();
     mSettings = std::make_shared<Settings>();
     mFishsanity = std::make_shared<Fishsanity>();
+    mSilverRupees = std::make_shared<SilverRupees>();
 }
 
 RandomizerArea Context::GetAreaFromString(std::string str) {
@@ -214,6 +215,11 @@ void Context::HintReset() {
     for (Hint& hint : hintTable){
         hint.ResetVariables();
     }
+}
+
+void Context::SilverRupeeReset() {
+    mSilverRupees.reset();
+    mSilverRupees = std::make_shared<SilverRupees>();
 }
 
 void Context::CreateItemOverrides() {
@@ -1220,5 +1226,9 @@ uint8_t Context::GetAmmo(uint32_t item) {
 
 void Context::SetAmmo(uint32_t item, uint8_t count) {
     mSaveContext->inventory.ammo[gItemSlots[item]] = count;
+}
+
+std::shared_ptr<SilverRupees> Context::GetSilverRupees() {
+    return mSilverRupees;
 }
 } // namespace Rando

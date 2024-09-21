@@ -26,6 +26,7 @@ void Randomizer_DrawMysteryItem(PlayState* play, GetItemEntry getItemEntry);
 
 #define GET_ITEM_MYSTERY \
     { ITEM_NONE_FE, 0, 0, 0, 0, 0, 0, ITEM_NONE_FE, 0, false, ITEM_FROM_NPC, ITEM_CATEGORY_JUNK, NULL, MOD_RANDOMIZER, (CustomDrawFunc)Randomizer_DrawMysteryItem }
+void Randomizer_DrawSilverRupee(PlayState* play, GetItemEntry* getItemEntry);
 #ifdef __cplusplus
 };
 #endif

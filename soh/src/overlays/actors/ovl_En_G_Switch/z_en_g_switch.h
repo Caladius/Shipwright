@@ -8,6 +8,14 @@ struct EnGSwitch;
 
 typedef void (*EnGSwitchActionFunc)(struct EnGSwitch*, PlayState*);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void EnGSwitch_Update(Actor* thisx, PlayState* play);
+#ifdef __cplusplus
+}
+#endif
+
 typedef enum {
     /* 0 */ GSWITCH_NONE,
     /* 1 */ GSWITCH_APPEAR,
@@ -56,6 +64,11 @@ typedef struct EnGSwitch {
     /* 0x0178 */ s8 objIndex;
     /* 0x017C */ ColliderCylinder collider;
     /* 0x01C8 */ EnGSwitchEffect effects[100];
+    // #region SOH [Randomizer]
+    /*        */ RandomizerCheck rc;
+    /*        */ RandomizerGet rg;
+    /*        */ GetItemEntry giEntry;
+    /*        */ RandomizerInf randInfFlag;
 } EnGSwitch; // size = 0x12F8
 
 #endif

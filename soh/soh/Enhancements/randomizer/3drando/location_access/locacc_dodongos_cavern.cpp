@@ -32,6 +32,8 @@ void AreaTable_Init_DodongosCavern() {
                   //Locations
                   LOCATION(RC_DODONGOS_CAVERN_MAP_CHEST,        Here(RR_DODONGOS_CAVERN_LOBBY, []{return logic->CanBlastOrSmash || logic->GoronBracelet;})),
                   LOCATION(RC_DODONGOS_CAVERN_DEKU_SCRUB_LOBBY, logic->CanStunDeku || logic->GoronBracelet),
+                  LOCATION(RC_DODONGOS_CAVERN_GOSSIP_STONE_FAIRY,     logic->CanSummonGossipFairy),
+                  LOCATION(RC_DODONGOS_CAVERN_GOSSIP_STONE_FAIRY_BIG, logic->CanUse(RG_SONG_OF_STORMS)),
                   LOCATION(RC_DODONGOS_CAVERN_GOSSIP_STONE,     Here(RR_DODONGOS_CAVERN_LOBBY, []{return logic->CanBlastOrSmash || logic->GoronBracelet;})),
                 }, {
                   //Exits
@@ -80,6 +82,7 @@ void AreaTable_Init_DodongosCavern() {
                   LOCATION(RC_DODONGOS_CAVERN_LIZALFOS_POT_2, logic->CanBreakPots),
                   LOCATION(RC_DODONGOS_CAVERN_LIZALFOS_POT_3, logic->CanBreakPots),
                   LOCATION(RC_DODONGOS_CAVERN_LIZALFOS_POT_4, logic->CanBreakPots),
+                  LOCATION(RC_DODONGOS_CAVERN_LOWER_LIZALFOS_HEART, true),
                 }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_NEAR_LOWER_LIZALFOS, {[]{return Here(RR_DODONGOS_CAVERN_LOWER_LIZALFOS, []{return logic->CanUse(RG_FAIRY_BOW) || logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_STICKS) || logic->CanUse(RG_KOKIRI_SWORD) ||
@@ -145,6 +148,7 @@ void AreaTable_Init_DodongosCavern() {
   areaTable[RR_DODONGOS_CAVERN_BOMB_ROOM_LOWER] = Area("Dodongos Cavern Bomb Room Lower", "Dodongos Cavern", RA_DODONGOS_CAVERN, NO_DAY_NIGHT_CYCLE, {}, {
                   //Locations
                   LOCATION(RC_DODONGOS_CAVERN_BOMB_FLOWER_PLATFORM_CHEST, true),
+                  LOCATION(RC_DODONGOS_CAVERN_BLADE_ROOM_HEART,           true),
                 }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_2F_SIDE_ROOM,         {[]{return Here(RR_DODONGOS_CAVERN_BOMB_ROOM_LOWER, []{return logic->CanBlastOrSmash || (randoCtx->GetTrickOption(RT_DC_SCRUB_ROOM) && logic->GoronBracelet);});}}),
@@ -171,7 +175,11 @@ void AreaTable_Init_DodongosCavern() {
                   Entrance(RR_DODONGOS_CAVERN_UPPER_LIZALFOS,  {[]{return logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_FAIRY_BOW) || randoCtx->GetTrickOption(RT_DC_SLINGSHOT_SKIP);}}),
   });
 
-  areaTable[RR_DODONGOS_CAVERN_UPPER_LIZALFOS] = Area("Dodongos Cavern Upper Lizalfos", "Dodongos Cavern", RA_DODONGOS_CAVERN, NO_DAY_NIGHT_CYCLE, {}, {}, {
+  areaTable[RR_DODONGOS_CAVERN_UPPER_LIZALFOS] = Area("Dodongos Cavern Upper Lizalfos", "Dodongos Cavern", RA_DODONGOS_CAVERN, NO_DAY_NIGHT_CYCLE, {}, {
+                  //Locations
+                  LOCATION(RC_DODONGOS_CAVERN_UPPER_LIZALFOS_LEFT_HEART,  true),
+                  LOCATION(RC_DODONGOS_CAVERN_UPPER_LIZALFOS_RIGHT_HEART, true),
+                }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_LOWER_LIZALFOS,        {[]{return true;}}),
                   Entrance(RR_DODONGOS_CAVERN_FIRST_SLINGSHOT_ROOM,  {[]{return Here(RR_DODONGOS_CAVERN_LOWER_LIZALFOS, []{return logic->CanUse(RG_FAIRY_BOW) || logic->CanUse(RG_FAIRY_SLINGSHOT) || logic->CanUse(RG_STICKS) || logic->CanUse(RG_KOKIRI_SWORD) || 
@@ -262,13 +270,21 @@ void AreaTable_Init_DodongosCavern() {
                   LOCATION(RC_DODONGOS_CAVERN_MQ_COMPASS_CHEST,              logic->CanAdultAttack || logic->CanChildAttack || logic->CanUse(RG_NUTS)),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_LARVAE_ROOM_CHEST,          (logic->IsChild && logic->CanUse(RG_STICKS)) || logic->HasFireSource),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_TORCH_PUZZLE_ROOM_CHEST,    logic->CanBlastOrSmash || (logic->IsChild && logic->CanUse(RG_STICKS)) || logic->CanUse(RG_DINS_FIRE) || (logic->IsAdult && (randoCtx->GetTrickOption(RT_DC_JUMP) || logic->HoverBoots || logic->Hookshot))),
+                  LOCATION(RC_DODONGOS_CAVERN_MQ_TORCH_PUZZLE_ROOM_HEART,    logic->CanBlastOrSmash || (logic->IsChild && logic->CanUse(RG_STICKS)) || logic->CanUse(RG_DINS_FIRE) || (logic->IsAdult && (randoCtx->GetTrickOption(RT_DC_JUMP) || logic->HoverBoots || logic->Hookshot))),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_GS_SONG_OF_TIME_BLOCK_ROOM, logic->CanUse(RG_SONG_OF_TIME) && (logic->CanChildAttack || logic->CanAdultAttack)),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_GS_LARVAE_ROOM,             (logic->IsChild && logic->CanUse(RG_STICKS)) || logic->HasFireSource),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_GS_LIZALFOS_ROOM,           logic->CanBlastOrSmash),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_DEKU_SCRUB_LOBBY_REAR,      logic->CanStunDeku),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_DEKU_SCRUB_LOBBY_FRONT,     logic->CanStunDeku),
                   LOCATION(RC_DODONGOS_CAVERN_MQ_DEKU_SCRUB_STAIRCASE,       logic->CanStunDeku),
+                  LOCATION(RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY,         logic->CanSummonGossipFairy),
+                  LOCATION(RC_DODONGOS_CAVERN_MQ_GOSSIP_STONE_FAIRY_BIG,     logic->CanUse(RG_SONG_OF_STORMS)),
                   LOCATION(RC_DODONGOS_CAVERN_GOSSIP_STONE,                  true),
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_DODONGOS_CAVERN_MQ_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
   }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_MQ_LOWER_RIGHT_SIDE,  {[]{return Here(RR_DODONGOS_CAVERN_MQ_LOBBY, []{return logic->CanBlastOrSmash || (((logic->IsChild && logic->CanUse(RG_STICKS)) || logic->CanUse(RG_DINS_FIRE)) && logic->CanTakeDamage);});}}),
@@ -281,6 +297,7 @@ void AreaTable_Init_DodongosCavern() {
   areaTable[RR_DODONGOS_CAVERN_MQ_LOWER_RIGHT_SIDE] = Area("Dodongos Cavern MQ Lower Right Side", "Dodongos Cavern", RA_DODONGOS_CAVERN, NO_DAY_NIGHT_CYCLE, {}, {
                   //Locations
                   LOCATION(RC_DODONGOS_CAVERN_MQ_DEKU_SCRUB_SIDE_ROOM_NEAR_LOWER_LIZALFOS, logic->CanStunDeku),
+                  LOCATION(RC_DODONGOS_CAVERN_MQ_LIZALFOS_ROOM_HEART,                      true),
   }, {
                   //Exits
                   Entrance(RR_DODONGOS_CAVERN_MQ_BOMB_BAG_AREA, {[]{return (Here(RR_DODONGOS_CAVERN_MQ_LOWER_RIGHT_SIDE, []{return logic->IsAdult && logic->CanUse(RG_FAIRY_BOW);}) || logic->GoronBracelet ||
