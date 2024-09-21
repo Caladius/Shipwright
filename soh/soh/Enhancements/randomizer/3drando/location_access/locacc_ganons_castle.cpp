@@ -83,14 +83,12 @@ void AreaTable_Init_GanonsCastle() {
                   LOCATION(RC_GANONS_CASTLE_FIRE_TRIAL_POT_1, logic->CanBreakPots && logic->CanUse(RG_GORON_TUNIC) && logic->CanUse(RG_GOLDEN_GAUNTLETS) && logic->CanUse(RG_LONGSHOT)),
                   LOCATION(RC_GANONS_CASTLE_FIRE_TRIAL_POT_2, logic->CanBreakPots && logic->CanUse(RG_GORON_TUNIC) && logic->CanUse(RG_GOLDEN_GAUNTLETS) && logic->CanUse(RG_LONGSHOT)),
                   LOCATION(RC_GANONS_CASTLE_FIRE_TRIAL_HEART, logic->CanUse(RG_GORON_TUNIC)),
-  }, {});
-  }, {
-    LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
-    LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
-    LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
-    LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
-    LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
-  }, {});
+                  LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_1, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_2, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_3, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_4, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                  LocationAccess(RC_FIRE_TRIAL_SILVER_RUPEE_5, {[]{return true;}}), /*TODO: Silver Rupee Logic*/
+                }, {});
 
   areaTable[RR_GANONS_CASTLE_WATER_TRIAL] = Area("Ganon's Castle Water Trial", "Ganon's Castle", RA_GANONS_CASTLE, NO_DAY_NIGHT_CYCLE, {
                   //Events
