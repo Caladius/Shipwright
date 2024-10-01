@@ -22,14 +22,18 @@ void PluginManagerDrawPlugins() {
         for (const std::string& widgetName : widgetNames) {
             std::unique_ptr<Widget> widget = factory.CreateWidget(widgetName);
 
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Text("%s", widget->GetLabel().c_str());
-            ImGui::TableSetColumnIndex(1);
-            widget->Draw();
             if (widgetName.find("Settings") != std::string::npos) {
+                ImGui::SameLine();
+                widget->Draw();
                 widget->Settings();
+            } else {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", widget->GetLabel().c_str());
+                ImGui::TableSetColumnIndex(1);
+                widget->Draw();
             }
+            
         }
 
         ImGui::EndTable();
