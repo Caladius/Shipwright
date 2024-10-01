@@ -25,6 +25,8 @@
 #include "Enhancements/randomizer/randomizer_settings_window.h"
 #include "SohModals.h"
 
+#include "soh/Enhancements/PluginManager/PluginManager.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
