@@ -137,6 +137,8 @@ namespace SohGui {
     std::shared_ptr<AdvancedResolutionSettings::AdvancedResolutionSettingsWindow> mAdvancedResolutionSettingsWindow;
     std::shared_ptr<SohModalWindow> mModalWindow;
 
+    std::shared_ptr<PluginManager> mPluginManager;
+
     void SetupGuiElements() {
         auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
 
@@ -209,6 +211,9 @@ namespace SohGui {
         mModalWindow = std::make_shared<SohModalWindow>(CVAR_WINDOW("ModalWindow"), "Modal Window");
         gui->AddGuiWindow(mModalWindow);
         mModalWindow->Show();
+
+        mPluginManager = std::make_shared<PluginManager>(CVAR_WINDOW("PluginManager"), "Plugin Manager");
+        gui->AddGuiWindow(mPluginManager);
     }
 
     void Destroy() {
@@ -240,6 +245,8 @@ namespace SohGui {
         mSohMenuBar = nullptr;
         mInputViewer = nullptr;
         mInputViewerSettings = nullptr;
+
+        mPluginManager = nullptr;
     }
 
     void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2, std::function<void()> button1callback, std::function<void()> button2callback) {
