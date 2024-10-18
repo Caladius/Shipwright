@@ -44,6 +44,9 @@
 // they don't work how I expect them to so I added that because it looked good when I eyeballed it
 #define FA_ICON_BUTTON_FRAME_PADDING_X(icon) (((optionsButtonSize.x - ImGui::CalcTextSize(icon).x) / 2) + 2.0f)
 
+#include "Enhancements/timesplits/TimeSplits.h"
+
+extern bool ToggleAltAssetsAtEndOfFrame;
 extern bool isBetaQuestEnabled;
 
 extern "C" PlayState* gPlayState;
@@ -559,6 +562,7 @@ void DrawSettingsMenu() {
 extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
 extern std::shared_ptr<CosmeticsEditorWindow> mCosmeticsEditorWindow;
 extern std::shared_ptr<GameplayStatsWindow> mGameplayStatsWindow;
+extern std::shared_ptr<TimeSplitWindow> mTimeSplitWindow;
 
 void DrawEnhancementsMenu() {
     if (ImGui::BeginMenu("Enhancements"))
@@ -766,6 +770,9 @@ void DrawEnhancementsMenu() {
 
             if (ImGui::BeginMenu("Items"))
             {
+                UIWidgets::PaddedEnhancementCheckbox("Equip Items on D-pad", CVAR_ENHANCEMENT("DpadEquips"), true, false);
+                UIWidgets::Tooltip("Equip items and equipment on the D-pad\nIf used with \"D-pad on Pause Screen\", you "
+                                   "must hold C-Up to equip instead of navigate");
                 UIWidgets::PaddedEnhancementCheckbox("Instant Putaway", CVAR_ENHANCEMENT("InstantPutaway"), true, false);
                 UIWidgets::Tooltip("Allow Link to put items away without having to wait around");
                 UIWidgets::PaddedEnhancementCheckbox("Instant Boomerang Recall", CVAR_ENHANCEMENT("FastBoomerang"), true, false);
@@ -1139,6 +1146,10 @@ void DrawEnhancementsMenu() {
 
             UIWidgets::EnhancementCheckbox("Visual Stone of Agony", CVAR_ENHANCEMENT("VisualAgony"));
             UIWidgets::Tooltip("Displays an icon and plays a sound when Stone of Agony should be activated, for those without rumble");
+            static const char* cursorOnAnySlot[3] = { "Only in Rando", "Always", "Never" };
+            UIWidgets::PaddedText("Allow the cursor to be on any slot", true, false);
+            UIWidgets::EnhancementCombobox(CVAR_ENHANCEMENT("PauseAnyCursor"), cursorOnAnySlot, PAUSE_ANY_CURSOR_RANDO_ONLY);
+            UIWidgets::Tooltip("Allows the cursor on the pause menu to be over any slot. Sometimes required in rando to select certain items.");
             UIWidgets::PaddedEnhancementCheckbox("Assignable Tunics and Boots", CVAR_ENHANCEMENT("AssignableTunicsAndBoots"), true, false);
             UIWidgets::Tooltip("Allows equipping the tunic and boots to c-buttons");
             UIWidgets::PaddedEnhancementCheckbox("Equipment Toggle", CVAR_ENHANCEMENT("EquipmentCanBeRemoved"), true, false);
@@ -1166,6 +1177,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::Tooltip("Allows dogs to follow you anywhere you go, even if you leave the market");
             UIWidgets::PaddedEnhancementCheckbox("Don't require input for Credits sequence", CVAR_ENHANCEMENT("NoInputForCredits"), true, false);
             UIWidgets::Tooltip("Removes the input requirement on textboxes after defeating Ganon, allowing Credits sequence to continue to progress");
+            UIWidgets::PaddedEnhancementCheckbox("Answer Navi Prompt with L Button", CVAR_ENHANCEMENT("NaviOnL"), true, false);
+            UIWidgets::Tooltip("Speak to Navi with L but enter first-person camera with C-Up");
 
             // Blue Fire Arrows
             bool forceEnableBlueFireArrows = IS_RANDO &&
@@ -1405,6 +1418,10 @@ void DrawEnhancementsMenu() {
                 "This will lower them, making activating them easier");
             UIWidgets::PaddedEnhancementCheckbox("Fix Zora hint dialogue", CVAR_ENHANCEMENT("FixZoraHintDialogue"), true, false);
             UIWidgets::Tooltip("Fixes one Zora's dialogue giving a hint about bringing Ruto's Letter to King Zora to properly occur before moving King Zora rather than after");
+            if (UIWidgets::PaddedEnhancementCheckbox("Fix hand holding Hammer", "gEnhancements.FixHammerHand", true, false)) {
+                UpdatePatchHand();
+            }
+            UIWidgets::Tooltip("Fixes Adult Link have a backwards left hand when holding the Megaton Hammer.");
 
             ImGui::EndMenu();
         }
@@ -1595,6 +1612,12 @@ void DrawEnhancementsMenu() {
         if (mGameplayStatsWindow) {
             if (ImGui::Button(GetWindowButtonText("Gameplay Stats", CVarGetInteger(CVAR_WINDOW("GameplayStats"), 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
                 mGameplayStatsWindow->ToggleVisibility();
+            }
+        }
+
+        if (mTimeSplitWindow) {
+            if (ImGui::Button(GetWindowButtonText("Time Splits", CVarGetInteger(CVAR_WINDOW("gTimeSplitEnabled"), 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                mTimeSplitWindow->ToggleVisibility();
             }
         }
         ImGui::PopStyleVar(3);

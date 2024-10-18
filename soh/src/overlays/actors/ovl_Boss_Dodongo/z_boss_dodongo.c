@@ -9,6 +9,8 @@
 #include <stdlib.h> // malloc
 #include <string.h> // memcpy
 
+#include "soh/Enhancements/timesplits/TimeSplits.h"
+
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_HOSTILE | ACTOR_FLAG_UPDATE_WHILE_CULLED | ACTOR_FLAG_DRAW_WHILE_CULLED)
 
 #define LAVA_TEX_WIDTH 32
