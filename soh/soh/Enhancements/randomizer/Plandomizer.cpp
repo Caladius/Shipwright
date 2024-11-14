@@ -642,7 +642,10 @@ void PlandomizerDrawItemPopup(uint32_t index) {
               [](const auto& a, const auto& b) {
                 auto typeA = a.first.GetItemType();
                 auto typeB = b.first.GetItemType();
+                if (typeA != typeB){
                   return typeA < typeB;
+                }
+                return a.first.GetRandomizerGet() < b.first.GetRandomizerGet();
               });
         ImGui::SeparatorText("Resources");
         ImGui::BeginTable("Infinite Item Table", 7);
