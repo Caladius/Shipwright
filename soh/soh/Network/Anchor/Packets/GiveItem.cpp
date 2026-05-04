@@ -37,6 +37,7 @@ void Anchor::SendPacket_GiveItem(u16 modId, s16 getItemId) {
     nlohmann::json payload;
     payload["type"] = GIVE_ITEM;
     payload["targetTeamId"] = CVarGetString(CVAR_REMOTE_ANCHOR("TeamId"), "default");
+    payload["name"] = CVarGetString(CVAR_REMOTE_ANCHOR("Name"), "");
     payload["addToQueue"] = true;
     payload["modId"] = modId;
     payload["getItemId"] = getItemId;
@@ -73,6 +74,7 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
         } else {
             Randomizer_Item_Give(gPlayState, getItemEntry);
         }
+        Notification::Emit({ .prefix = payload["name"], .message = std::to_string(getItemEntry.itemId) });
     }
 
     // Full heal if getting a heart container or piece
