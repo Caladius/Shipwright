@@ -91,13 +91,14 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
                 inputFile.close();
             }
 
-            if (saveFile.contains(payload["name"])) {
-                int32_t currentCount = saveFile[payload["name"]]["count"].get<int>();
+            std::string playerName = payload["name"].get<std::string>();
+            if (saveFile.contains(playerName)) {
+                int32_t currentCount = saveFile[playerName]["count"].get<int>();
                 currentCount++;
 
-                saveFile[payload["name"]]["count"] = currentCount;
+                saveFile[playerName]["count"] = currentCount;
             } else {
-                saveFile[payload["name"]]["count"] = 1;
+                saveFile[playerName]["count"] = 1;
             }
 
             std::ofstream outputFile(filename);
@@ -105,10 +106,6 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
                 outputFile << saveFile.dump(4);
                 outputFile.close();
             }
-
-            //j["player"] = nlohmann::json::object();
-            //j["player"]["name"] = payload["name"];
-            //j["player"]["count"] = 1;
         }
     }
     
