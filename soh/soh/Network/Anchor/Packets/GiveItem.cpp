@@ -82,7 +82,7 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
     if (getItemEntry.modIndex == MOD_RANDOMIZER) {
         if (getItemEntry.getItemId == RG_TRIFORCE_PIECE) {
             Notification::Emit({ .prefix = payload["name"], .message = "Triforce Piece" });
-            
+
             std::string filename = Ship::Context::GetPathRelativeToAppDirectory("cheesehunt.json");
             nlohmann::json saveFile;
             std::ifstream inputFile(filename);
@@ -108,7 +108,6 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
             }
         }
     }
-    
 
     // Full heal if getting a heart container or piece
     if (getItemEntry.gid == GID_HEART_CONTAINER || getItemEntry.gid == GID_HEART_PIECE) {
