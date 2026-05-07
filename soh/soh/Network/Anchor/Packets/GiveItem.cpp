@@ -8,6 +8,9 @@
 #include "soh/Enhancements/item-tables/ItemTableManager.h"
 #include "soh/OTRGlobals.h"
 
+#include <fstream>
+#include <filesystem>
+
 extern "C" {
 #include "functions.h"
 extern PlayState* gPlayState;
@@ -74,8 +77,41 @@ void Anchor::HandlePacket_GiveItem(nlohmann::json payload) {
         } else {
             Randomizer_Item_Give(gPlayState, getItemEntry);
         }
-        Notification::Emit({ .prefix = payload["name"], .message = std::to_string(getItemEntry.itemId) });
     }
+
+    if (getItemEntry.modIndex == MOD_RANDOMIZER) {
+        if (getItemEntry.getItemId == RG_TRIFORCE_PIECE) {
+            Notification::Emit({ .prefix = payload["name"], .message = "Triforce Piece" });
+            
+            std::string filename = Ship::Context::GetPathRelativeToAppDirectory("cheesehunt.json");
+            nlohmann::json saveFile;
+            std::ifstream inputFile(filename);
+            if (inputFile.is_open()) {
+                inputFile >> saveFile;
+                inputFile.close();
+            }
+
+            if (saveFile.contains(payload["name"])) {
+                int32_t currentCount = saveFile[payload["name"]]["count"].get<int>();
+                currentCount++;
+
+                saveFile[payload["name"]]["count"] = currentCount;
+            } else {
+                saveFile[payload["name"]]["count"] = 1;
+            }
+
+            std::ofstream outputFile(filename);
+            if (outputFile.is_open()) {
+                outputFile << saveFile.dump(4);
+                outputFile.close();
+            }
+
+            //j["player"] = nlohmann::json::object();
+            //j["player"]["name"] = payload["name"];
+            //j["player"]["count"] = 1;
+        }
+    }
+    
 
     // Full heal if getting a heart container or piece
     if (getItemEntry.gid == GID_HEART_CONTAINER || getItemEntry.gid == GID_HEART_PIECE) {
